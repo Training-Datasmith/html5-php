@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests;
 
 use Masterminds\HTML5;
@@ -113,10 +115,10 @@ class Html5Test extends TestCase
     public function testLoadOptions()
     {
         // doc
-        $dom = $this->html5->loadHTML($this->wrap('<t:tag/>'), array(
-            'implicitNamespaces' => array('t' => 'http://example.com'),
+        $dom = $this->html5->loadHTML($this->wrap('<t:tag/>'), [
+            'implicitNamespaces' => ['t' => 'http://example.com'],
             'xmlNamespaces' => true,
-        ));
+        ]);
         $this->assertInstanceOf('\DOMDocument', $dom);
         $this->assertEmpty($this->html5->getErrors());
         $this->assertFalse($this->html5->hasErrors());
@@ -126,10 +128,10 @@ class Html5Test extends TestCase
         $this->assertEquals(1, $xpath->query('//t:tag')->length);
 
         // doc fragment
-        $frag = $this->html5->loadHTMLFragment('<t:tag/>', array(
-            'implicitNamespaces' => array('t' => 'http://example.com'),
+        $frag = $this->html5->loadHTMLFragment('<t:tag/>', [
+            'implicitNamespaces' => ['t' => 'http://example.com'],
             'xmlNamespaces' => true,
-        ));
+        ]);
         $this->assertInstanceOf('\DOMDocumentFragment', $frag);
         $this->assertEmpty($this->html5->getErrors());
         $this->assertFalse($this->html5->hasErrors());
@@ -157,9 +159,9 @@ class Html5Test extends TestCase
 
     public function testEncodingWindows1252()
     {
-        $dom = $this->html5->load(__DIR__ . '/Fixtures/encoding/windows-1252.html', array(
+        $dom = $this->html5->load(__DIR__ . '/Fixtures/encoding/windows-1252.html', [
             'encoding' => 'Windows-1252',
-        ));
+        ]);
 
         $this->assertInstanceOf('\DOMDocument', $dom);
         $this->assertEmpty($this->html5->getErrors());
@@ -290,10 +292,10 @@ class Html5Test extends TestCase
         $options = $html5->getOptions();
         $this->assertEquals(false, $options['encode_entities']);
 
-        $html5 = $this->getInstance(array(
+        $html5 = $this->getInstance([
             'foo' => 'bar',
             'encode_entities' => true,
-        ));
+        ]);
         $options = $html5->getOptions();
         $this->assertEquals('bar', $options['foo']);
         $this->assertEquals(true, $options['encode_entities']);
@@ -320,7 +322,8 @@ class Html5Test extends TestCase
             </text>
           </svg>
         </body>
-      </html>');
+      </html>'
+        );
 
         $this->assertEmpty($this->html5->getErrors());
 
@@ -359,7 +362,8 @@ class Html5Test extends TestCase
             <mi>y</mi>
           </math>
         </body>
-      </html>');
+      </html>'
+        );
 
         $this->assertEmpty($this->html5->getErrors());
         $list = $dom->getElementsByTagName('math');
@@ -392,7 +396,8 @@ class Html5Test extends TestCase
       <f:width>40</f:width>
       <f:length>80</f:length>
     </f:rug>
-    <sarcasm>um, yeah</sarcasm>');
+    <sarcasm>um, yeah</sarcasm>'
+        );
 
         $this->assertEmpty($this->html5->getErrors());
         $markup = $this->html5->saveHTML($dom);
@@ -523,9 +528,9 @@ class Html5Test extends TestCase
     {
         $dom = $this->html5->loadHTML(
             '<html><body><Button color="red">Error</Button></body></html>',
-            array(
+            [
                 'xmlNamespaces' => true,
-            )
+            ]
         );
         $out = $this->html5->saveHTML($dom);
         $this->assertRegExp('|<html><body><Button color="red">Error</Button></body></html>|', $out);

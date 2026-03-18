@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @file
  * The interface definition for Rules to generate output.
@@ -22,7 +24,7 @@ interface RulesInterface
      * @param mixed $output  The output stream to write output to.
      * @param array $options An array of options.
      */
-    public function __construct($output, $options = array());
+    public function __construct($output, $options = []);
 
     /**
      * Register the traverser used in but the rules.

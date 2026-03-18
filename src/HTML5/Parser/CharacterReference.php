@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Entities;
@@ -11,12 +13,12 @@ use Masterminds\HTML5\Entities;
  */
 class CharacterReference
 {
-    protected static $numeric_mask = array(
+    protected static $numeric_mask = [
         0x0,
         0x2FFFF,
         0,
         0xFFFF,
-    );
+    ];
 
     /**
      * Given a name (e.g. 'amp'), lookup the UTF-8 character ('&').

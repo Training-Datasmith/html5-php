@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests\Parser;
 
 use Masterminds\HTML5\Elements;
@@ -21,7 +23,7 @@ class EventStack implements EventHandler
 
     public function __construct()
     {
-        $this->stack = array();
+        $this->stack = [];
     }
 
     /**
@@ -44,24 +46,24 @@ class EventStack implements EventHandler
 
     protected function store($event, $data = null)
     {
-        $this->stack[] = array(
+        $this->stack[] = [
             'name' => $event,
             'data' => $data,
-        );
+        ];
     }
 
     public function doctype($name, $type = 0, $id = null, $quirks = false)
     {
-        $args = array(
+        $args = [
             $name,
             $type,
             $id,
             $quirks,
-        );
+        ];
         $this->store('doctype', $args);
     }
 
-    public function startTag($name, $attributes = array(), $selfClosing = false)
+    public function startTag($name, $attributes = [], $selfClosing = false)
     {
         $args = func_get_args();
         $this->store('startTag', $args);
@@ -72,16 +74,16 @@ class EventStack implements EventHandler
 
     public function endTag($name)
     {
-        $this->store('endTag', array(
+        $this->store('endTag', [
             $name,
-        ));
+        ]);
     }
 
     public function comment($cdata)
     {
-        $this->store('comment', array(
+        $this->store('comment', [
             $cdata,
-        ));
+        ]);
     }
 
     public function cdata($data)
@@ -92,9 +94,9 @@ class EventStack implements EventHandler
     public function text($cdata)
     {
         // fprintf(STDOUT, "Received TEXT event with: " . $cdata);
-        $this->store('text', array(
+        $this->store('text', [
             $cdata,
-        ));
+        ]);
     }
 
     public function eof()

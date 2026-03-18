@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @file
  * Test the Tree Builder's special-case rules.
@@ -16,7 +18,7 @@ use Masterminds\HTML5\Parser\TreeBuildingRules;
  */
 class TreeBuildingRulesTest extends \Masterminds\HTML5\Tests\TestCase
 {
-    const HTML_STUB = '<!DOCTYPE html><html><head><title>test</title></head><body>%s</body></html>';
+    public const HTML_STUB = '<!DOCTYPE html><html><head><title>test</title></head><body>%s</body></html>';
 
     /**
      * Convenience function for parsing.

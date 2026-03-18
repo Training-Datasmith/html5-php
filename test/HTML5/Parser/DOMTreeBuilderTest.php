@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @file
  * Test the Tree Builder.
@@ -15,12 +17,12 @@ use Masterminds\HTML5\Parser\Tokenizer;
  */
 class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
 {
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Convenience function for parsing.
      */
-    protected function parse($string, array $options = array())
+    protected function parse($string, array $options = [])
     {
         $treeBuilder = new DOMTreeBuilder(false, $options);
         $scanner = new Scanner($string);
@@ -165,7 +167,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
     public function testDocumentWithDisabledNamespaces()
     {
         $html = '<!DOCTYPE html><html></html>';
-        $doc = $this->parse($html, array('disable_html_ns' => true));
+        $doc = $this->parse($html, ['disable_html_ns' => true]);
 
         $this->assertInstanceOf('\DOMDocument', $doc);
         $this->assertEquals('html', $doc->documentElement->tagName);
@@ -177,7 +179,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
         $targetDom = new \DOMDocument();
 
         $html = '<!DOCTYPE html><html></html>';
-        $doc = $this->parse($html, array('target_document' => $targetDom));
+        $doc = $this->parse($html, ['target_document' => $targetDom]);
 
         $this->assertInstanceOf('\DOMDocument', $doc);
         $this->assertSame($doc, $targetDom);
@@ -187,7 +189,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
     public function testDocumentFakeAttrAbsence()
     {
         $html = '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><body>foo</body></html>';
-        $doc = $this->parse($html, array('xmlNamespaces' => true));
+        $doc = $this->parse($html, ['xmlNamespaces' => true]);
 
         $xp = new \DOMXPath($doc);
         $this->assertEquals(0, $xp->query('//@html5-php-fake-id-attribute')->length);
@@ -242,20 +244,20 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testCustomImplicitNamespaces()
     {
-        $dom = $this->parse('<!DOCTYPE html><html><body><a t:href="bar">foo</a></body></html>', array(
-            'implicitNamespaces' => array(
+        $dom = $this->parse('<!DOCTYPE html><html><body><a t:href="bar">foo</a></body></html>', [
+            'implicitNamespaces' => [
                 't' => 'http://www.example.com',
-            ),
-        ));
+            ],
+        ]);
         $a = $dom->getElementsByTagName('a')->item(0);
         $attr = $a->getAttributeNode('t:href');
         $this->assertEquals('http://www.example.com', $attr->namespaceURI);
 
-        $dom = $this->parse('<!DOCTYPE html><html><body><t:a>foo</t:a></body></html>', array(
-            'implicitNamespaces' => array(
+        $dom = $this->parse('<!DOCTYPE html><html><body><t:a>foo</t:a></body></html>', [
+            'implicitNamespaces' => [
                 't' => 'http://www.example.com',
-            ),
-        ));
+            ],
+        ]);
         $list = $dom->getElementsByTagNameNS('http://www.example.com', 'a');
         $this->assertEquals(1, $list->length);
     }
@@ -268,9 +270,11 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
                 <a t:href="bar">foo</a>
             </body>
             <div>foo</div>
-          </html>', array(
+          </html>',
+            [
                 'xmlNamespaces' => true,
-            ));
+            ]
+        );
         $a = $dom->getElementsByTagName('a')->item(0);
         $attr = $a->getAttributeNode('t:href');
         $this->assertEquals('http://www.example.com', $attr->namespaceURI);
@@ -293,9 +297,11 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
                 <d id="bar3"></d>
                 <xn:d xmlns:xn="http://www.prefixed.com/xn" xmlns="http://www.prefixed.com/bar5_x" id="bar5"><x id="bar5_x"/></xn:d>
             </body>
-          </html>', array(
+          </html>',
+            [
                 'xmlNamespaces' => true,
-            ));
+            ]
+        );
 
         $this->assertEmpty($this->errors);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Elements;
@@ -43,8 +45,8 @@ class Tokenizer
     protected $textMode = 0; // TEXTMODE_NORMAL;
     protected $untilTag;
 
-    const CONFORMANT_XML = 'xml';
-    const CONFORMANT_HTML = 'html';
+    public const CONFORMANT_XML = 'xml';
+    public const CONFORMANT_HTML = 'html';
     protected $mode = self::CONFORMANT_HTML;
 
     /**
@@ -389,7 +391,7 @@ class Tokenizer
         // We know this is at least one char.
         $name = $this->scanner->charsWhile(':_-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
         $name = self::CONFORMANT_XML === $this->mode ? $name : strtolower($name);
-        $attributes = array();
+        $attributes = [];
         $selfClose = false;
 
         // Handle attribute parse exceptions here so that we can

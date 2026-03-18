@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Serializer;
 
 /**
@@ -16,11 +18,11 @@ class Traverser
     /**
      * Namespaces that should be treated as "local" to HTML5.
      */
-    protected static $local_ns = array(
+    protected static $local_ns = [
         'http://www.w3.org/1999/xhtml' => 'html',
         'http://www.w3.org/1998/Math/MathML' => 'math',
         'http://www.w3.org/2000/svg' => 'svg',
-    );
+    ];
 
     protected $dom;
 
@@ -43,7 +45,7 @@ class Traverser
      *                                       charachter references. Defaults to false which escapes &'<>".
      *                                       - output_rules: The path to the class handling the output rules.
      */
-    public function __construct($dom, $out, RulesInterface $rules, $options = array())
+    public function __construct($dom, $out, RulesInterface $rules, $options = [])
     {
         $this->dom = $dom;
         $this->out = $out;
@@ -104,7 +106,7 @@ class Traverser
             case XML_COMMENT_NODE:
                 $this->rules->comment($node);
                 break;
-            // Currently we don't support embedding DTDs.
+                // Currently we don't support embedding DTDs.
             default:
                 //print '<!-- Skipped -->';
                 break;

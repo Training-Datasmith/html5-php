@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -15,7 +17,7 @@ namespace Masterminds\HTML5\Parser;
  */
 class TreeBuildingRules
 {
-    protected static $tags = array(
+    protected static $tags = [
         'li' => 1,
         'dd' => 1,
         'dt' => 1,
@@ -30,7 +32,7 @@ class TreeBuildingRules
         'table' => 1,
         'optgroup' => 1,
         'option' => 1,
-    );
+    ];
 
     /**
      * Returns true if the given tagname has special processing rules.
@@ -59,32 +61,32 @@ class TreeBuildingRules
             case 'rp':
                 return $this->handleRT($new, $current);
             case 'optgroup':
-                return $this->closeIfCurrentMatches($new, $current, array(
+                return $this->closeIfCurrentMatches($new, $current, [
                     'optgroup',
-                ));
+                ]);
             case 'option':
-                return $this->closeIfCurrentMatches($new, $current, array(
+                return $this->closeIfCurrentMatches($new, $current, [
                     'option',
-                ));
+                ]);
             case 'tr':
-                return $this->closeIfCurrentMatches($new, $current, array(
+                return $this->closeIfCurrentMatches($new, $current, [
                     'tr',
-                ));
+                ]);
             case 'td':
             case 'th':
-                return $this->closeIfCurrentMatches($new, $current, array(
+                return $this->closeIfCurrentMatches($new, $current, [
                     'th',
                     'td',
-                ));
+                ]);
             case 'tbody':
             case 'thead':
             case 'tfoot':
             case 'table': // Spec isn't explicit about this, but it's necessary.
-                return $this->closeIfCurrentMatches($new, $current, array(
+                return $this->closeIfCurrentMatches($new, $current, [
                     'thead',
                     'tfoot',
                     'tbody',
-                ));
+                ]);
         }
 
         return $current;
@@ -92,25 +94,25 @@ class TreeBuildingRules
 
     protected function handleLI($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, array(
+        return $this->closeIfCurrentMatches($ele, $current, [
             'li',
-        ));
+        ]);
     }
 
     protected function handleDT($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, array(
+        return $this->closeIfCurrentMatches($ele, $current, [
             'dt',
             'dd',
-        ));
+        ]);
     }
 
     protected function handleRT($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, array(
+        return $this->closeIfCurrentMatches($ele, $current, [
             'rt',
             'rp',
-        ));
+        ]);
     }
 
     protected function closeIfCurrentMatches($ele, $current, $match)

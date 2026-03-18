@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests\Serializer;
 
 use Masterminds\HTML5;
@@ -58,7 +60,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         return $property;
     }
 
-    public function getOutputRules($options = array())
+    public function getOutputRules($options = [])
     {
         $options = $options + $this->html5->getOptions();
         $stream = fopen('php://temp', 'w');
@@ -66,10 +68,10 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         $r = new OutputRules($stream, $options);
         $t = new Traverser($dom, $stream, $r, $options);
 
-        return array(
+        return [
             $r,
             $stream,
-        );
+        ];
     }
 
     public function testDocument()
@@ -124,7 +126,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
           <rect width="1" height="2" x="2" fill="#d2232c" />
         </svg>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -137,9 +140,9 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testSerializeWithNamespaces()
     {
-        $this->html5 = $this->getInstance(array(
+        $this->html5 = $this->getInstance([
             'xmlNamespaces' => true,
-        ));
+        ]);
 
         $source = '
             <!DOCTYPE html>
@@ -155,9 +158,9 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
                 </body>
             </html>';
 
-        $dom = $this->html5->loadHTML($source, array(
+        $dom = $this->html5->loadHTML($source, [
             'xmlNamespaces' => true,
-        ));
+        ]);
         $this->assertFalse($this->html5->hasErrors(), print_r($this->html5->getErrors(), 1));
 
         $stream = fopen('php://temp', 'w');
@@ -192,7 +195,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
       <body>
         <div id="foo" class="bar baz">foo bar baz</div>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -208,7 +212,9 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
             $jQ("#mktFrmSubmit").wrap("<div class=\'buttonSubmit\'></div>");
             $jQ(".buttonSubmit").prepend("<span></span>");
           });
-        </script>', stream_get_contents($stream, -1, 0));
+        </script>',
+            stream_get_contents($stream, -1, 0)
+        );
     }
 
     public function testElementWithStyle()
@@ -226,7 +232,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
       <body>
         <div id="foo" class="bar baz">foo bar baz</div>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -385,7 +392,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     public function testWrWithNullNodeValue()
     {
         // Namespace nodes with an empty URI (xmlns:w="") can expose a null nodeValue; verify no error on serialization.
-        $this->html5 = $this->getInstance(array('xmlNamespaces' => true));
+        $this->html5 = $this->getInstance(['xmlNamespaces' => true]);
         $input = '<!doctype html><html><body><span xmlns:w="" data-x="1"></span></body></html>';
         $dom = $this->html5->loadHTML($input);
         $result = $this->html5->saveHTML($dom);
@@ -394,51 +401,51 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function getEncData()
     {
-        return array(
-            array(
+        return [
+            [
                 false,
                 '&\'<>"',
                 '&amp;\'&lt;&gt;"',
                 '&amp;&apos;&lt;&gt;&quot;',
-            ),
-            array(
+            ],
+            [
                 false,
                 'This + is. a < test',
                 'This + is. a &lt; test',
                 'This &plus; is&period; a &lt; test',
-            ),
-            array(
+            ],
+            [
                 false,
                 '.+#',
                 '.+#',
                 '&period;&plus;&num;',
-            ),
+            ],
 
-            array(
+            [
                 true,
                 '.+#\'',
                 '.+#\'',
                 '&period;&plus;&num;&apos;',
-            ),
-            array(
+            ],
+            [
                 true,
                 '&".<',
                 '&amp;&quot;.<',
                 '&amp;&quot;&period;&lt;',
-            ),
-            array(
+            ],
+            [
                 true,
                 '&\'<>"',
                 '&amp;\'<>&quot;',
                 '&amp;&apos;&lt;&gt;&quot;',
-            ),
-            array(
+            ],
+            [
                 true,
                 "\xc2\xa0\"'",
                 '&nbsp;&quot;\'',
                 '&nbsp;&quot;&apos;',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -453,9 +460,9 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
         $this->assertEquals($expected, $m->invoke($o, $test, $isAttribute));
 
-        list($o, $s) = $this->getOutputRules(array(
+        list($o, $s) = $this->getOutputRules([
             'encode_entities' => true,
-        ));
+        ]);
         $m = $this->getProtectedMethod('enc');
         $this->assertEquals($expectedEncoded, $m->invoke($o, $test, $isAttribute));
     }
@@ -475,18 +482,18 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function booleanAttributes()
     {
-        return array(
-            array('<img alt="" ismap>'),
-            array('<img alt="">'),
-            array('<input type="radio" readonly>'),
-            array('<input type="radio" checked disabled>'),
-            array('<input type="checkbox" checked disabled>'),
-            array('<input type="radio" value="" checked disabled>'),
-            array('<div data-value=""></div>'),
-            array('<select disabled></select>'),
-            array('<div ng-app></div>'),
-            array('<script defer></script>'),
-        );
+        return [
+            ['<img alt="" ismap>'],
+            ['<img alt="">'],
+            ['<input type="radio" readonly>'],
+            ['<input type="radio" checked disabled>'],
+            ['<input type="checkbox" checked disabled>'],
+            ['<input type="radio" value="" checked disabled>'],
+            ['<div data-value=""></div>'],
+            ['<select disabled></select>'],
+            ['<div ng-app></div>'],
+            ['<script defer></script>'],
+        ];
     }
 
     /**
@@ -551,7 +558,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
           </rect>
         </svg>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -580,7 +588,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
           <mi>y</mi>
         </math>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -618,7 +627,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
             contact persons for the <a href="Activity">W3C HTML Activity</a>
         </address>
       </body>
-    </html>');
+    </html>'
+        );
 
         $stream = fopen('php://temp', 'w');
         $r = new OutputRules($stream, $this->html5->getOptions());
@@ -641,14 +651,15 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     public function testHandlingInvalidRawContent()
     {
         $dom = $this->html5->loadHTML(
-    '<!doctype html>
+            '<!doctype html>
 <html lang="en" id="base">
     <body>
        <script id="template" type="x-tmpl-mustache">
            <h1>Hello!</h1>
        </script>
     </body>
-</html>');
+</html>'
+        );
 
         $badNode = $dom->createElement('p', 'Bar');
 
@@ -672,7 +683,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
        <svg></svg>
        <math></math>
     </body>
-</html>');
+</html>'
+        );
 
         $contents = $this->html5->saveHTML($dom);
 

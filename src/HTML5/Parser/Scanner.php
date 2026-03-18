@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Exception;
@@ -9,9 +11,9 @@ use Masterminds\HTML5\Exception;
  */
 class Scanner
 {
-    const CHARS_HEX = 'abcdefABCDEF01234567890';
-    const CHARS_ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890';
-    const CHARS_ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public const CHARS_HEX = 'abcdefABCDEF01234567890';
+    public const CHARS_ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890';
+    public const CHARS_ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     /**
      * The string data we're parsing.
@@ -31,7 +33,7 @@ class Scanner
     /**
      * Parse errors.
      */
-    public $errors = array();
+    public $errors = [];
 
     /**
      * Create a new Scanner.
@@ -342,11 +344,11 @@ class Scanner
          * represented by LF characters, and there are never any CR characters in the input to the tokenization
          * stage.
          */
-        $crlfTable = array(
+        $crlfTable = [
             "\0" => "\xEF\xBF\xBD",
             "\r\n" => "\n",
             "\r" => "\n",
-        );
+        ];
 
         return strtr($data, $crlfTable);
     }

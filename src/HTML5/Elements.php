@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Provide general element functions.
  */
@@ -21,7 +23,7 @@ class Elements
     /**
      * Indicates an element is described in the specification.
      */
-    const KNOWN_ELEMENT = 1;
+    public const KNOWN_ELEMENT = 1;
 
     // From section 8.1.2: "script", "style"
     // From 8.2.5.4.7 ("in body" insertion mode): "noembed"
@@ -29,18 +31,18 @@ class Elements
     /**
      * Indicates the contained text should be processed as raw text.
      */
-    const TEXT_RAW = 2;
+    public const TEXT_RAW = 2;
 
     // From section 8.1.2: "textarea", "title"
     /**
      * Indicates the contained text should be processed as RCDATA.
      */
-    const TEXT_RCDATA = 4;
+    public const TEXT_RCDATA = 4;
 
     /**
      * Indicates the tag cannot have content.
      */
-    const VOID_TAG = 8;
+    public const VOID_TAG = 8;
 
     // "address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl",
     // "fieldset", "figcaption", "figure", "footer", "header", "hgroup", "menu",
@@ -53,23 +55,23 @@ class Elements
      * Indicates that if a previous event is for a P tag, that element
      * should be considered closed.
      */
-    const AUTOCLOSE_P = 16;
+    public const AUTOCLOSE_P = 16;
 
     /**
      * Indicates that the text inside is plaintext (pre).
      */
-    const TEXT_PLAINTEXT = 32;
+    public const TEXT_PLAINTEXT = 32;
 
     // See https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
     /**
      * Indicates that the tag is a block.
      */
-    const BLOCK_TAG = 64;
+    public const BLOCK_TAG = 64;
 
     /**
      * Indicates that the tag allows only inline elements as child nodes.
      */
-    const BLOCK_ONLY_INLINE = 128;
+    public const BLOCK_ONLY_INLINE = 128;
 
     /**
      * Elements with optional end tags that cause auto-closing of previous and parent tags,
@@ -81,20 +83,20 @@ class Elements
      *
      * @var array<string, string[]>
      */
-    public static $optionalEndElementsParentsToClose = array(
-        'tr' => array('td', 'tr'),
-        'td' => array('td', 'th'),
-        'th' => array('td', 'th'),
-        'tfoot' => array('td', 'th', 'tr', 'tbody', 'thead'),
-        'tbody' => array('td', 'th', 'tr', 'thead'),
-    );
+    public static $optionalEndElementsParentsToClose = [
+        'tr' => ['td', 'tr'],
+        'td' => ['td', 'th'],
+        'th' => ['td', 'th'],
+        'tfoot' => ['td', 'th', 'tr', 'tbody', 'thead'],
+        'tbody' => ['td', 'th', 'tr', 'thead'],
+    ];
 
     /**
      * The HTML5 elements as defined in http://dev.w3.org/html5/markup/elements.html.
      *
      * @var array
      */
-    public static $html5 = array(
+    public static $html5 = [
         'a' => 1,
         'abbr' => 1,
         'address' => 65, // NORMAL | BLOCK_TAG
@@ -221,7 +223,7 @@ class Elements
         'isindex' => 8, // VOID_TAG
         'xmp' => 20, // AUTOCLOSE_P | VOID_TAG | RAW_TEXT
         'noembed' => 2, // RAW_TEXT
-        );
+        ];
 
     /**
      * The MathML elements.
@@ -232,7 +234,7 @@ class Elements
      *
      * @var array
      */
-    public static $mathml = array(
+    public static $mathml = [
         'maction' => 1,
         'maligngroup' => 1,
         'malignmark' => 1,
@@ -272,7 +274,7 @@ class Elements
         'mtr' => 1,
         'munder' => 1,
         'munderover' => 1,
-    );
+    ];
 
     /**
      * The svg elements.
@@ -286,7 +288,7 @@ class Elements
      *
      * @var array
      */
-    public static $svg = array(
+    public static $svg = [
         'a' => 1,
         'altGlyph' => 1,
         'altGlyphDef' => 1,
@@ -367,7 +369,7 @@ class Elements
         'use' => 1,
         'view' => 1,
         'vkern' => 1,
-    );
+    ];
 
     /**
      * Some attributes in SVG are case sensitive.
@@ -375,7 +377,7 @@ class Elements
      * This map contains key/value pairs with the key as the lowercase attribute
      * name and the value with the correct casing.
      */
-    public static $svgCaseSensitiveAttributeMap = array(
+    public static $svgCaseSensitiveAttributeMap = [
         'attributename' => 'attributeName',
         'attributetype' => 'attributeType',
         'basefrequency' => 'baseFrequency',
@@ -438,7 +440,7 @@ class Elements
         'xchannelselector' => 'xChannelSelector',
         'ychannelselector' => 'yChannelSelector',
         'zoomandpan' => 'zoomAndPan',
-    );
+    ];
 
     /**
      * Some SVG elements are case sensitive.
@@ -447,7 +449,7 @@ class Elements
      * The map contains key/value store of the name is lowercase as the keys and
      * the correct casing as the value.
      */
-    public static $svgCaseSensitiveElementMap = array(
+    public static $svgCaseSensitiveElementMap = [
         'altglyph' => 'altGlyph',
         'altglyphdef' => 'altGlyphDef',
         'altglyphitem' => 'altGlyphItem',
@@ -484,7 +486,7 @@ class Elements
         'lineargradient' => 'linearGradient',
         'radialgradient' => 'radialGradient',
         'textpath' => 'textPath',
-    );
+    ];
 
     /**
      * Check whether the given element meets the given criterion.

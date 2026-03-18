@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * A handler for processor instructions.
  */

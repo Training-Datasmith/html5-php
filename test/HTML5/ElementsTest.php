@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests;
 
 use Masterminds\HTML5\Elements;
 
 class ElementsTest extends TestCase
 {
-    public $html5Elements = array(
+    public $html5Elements = [
         'a',
         'abbr',
         'address',
@@ -117,9 +119,9 @@ class ElementsTest extends TestCase
         'var',
         'video',
         'wbr',
-    );
+    ];
 
-    public $mathmlElements = array(
+    public $mathmlElements = [
         'maction',
         'maligngroup',
         'malignmark',
@@ -159,9 +161,9 @@ class ElementsTest extends TestCase
         'mtr',
         'munder',
         'munderover',
-    );
+    ];
 
-    public $svgElements = array(
+    public $svgElements = [
         'a',
         'altGlyph',
         'altGlyphDef',
@@ -242,7 +244,7 @@ class ElementsTest extends TestCase
         'use',
         'view',
         'vkern',
-    );
+    ];
 
     public function testIsHtml5Element()
     {
@@ -252,11 +254,11 @@ class ElementsTest extends TestCase
             $this->assertTrue(Elements::isHtml5Element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
         }
 
-        $nonhtml5 = array(
+        $nonhtml5 = [
             'foo',
             'bar',
             'baz',
-        );
+        ];
         foreach ($nonhtml5 as $element) {
             $this->assertFalse(Elements::isHtml5Element($element), 'html5 element test failed on: ' . $element);
 
@@ -273,11 +275,11 @@ class ElementsTest extends TestCase
             $this->assertFalse(Elements::isMathMLElement(strtoupper($element)), 'MathML element test failed on: ' . strtoupper($element));
         }
 
-        $nonMathML = array(
+        $nonMathML = [
             'foo',
             'bar',
             'baz',
-        );
+        ];
         foreach ($nonMathML as $element) {
             $this->assertFalse(Elements::isMathMLElement($element), 'MathML element test failed on: ' . $element);
         }
@@ -292,11 +294,11 @@ class ElementsTest extends TestCase
             $this->assertFalse(Elements::isSvgElement(strtoupper($element)), 'SVG element test failed on: ' . strtoupper($element));
         }
 
-        $nonSVG = array(
+        $nonSVG = [
             'foo',
             'bar',
             'baz',
-        );
+        ];
         foreach ($nonSVG as $element) {
             $this->assertFalse(Elements::isSvgElement($element), 'SVG element test failed on: ' . $element);
         }
@@ -328,11 +330,11 @@ class ElementsTest extends TestCase
             }
         }
 
-        $nonhtml5 = array(
+        $nonhtml5 = [
             'foo',
             'bar',
             'baz',
-        );
+        ];
         foreach ($nonhtml5 as $element) {
             $this->assertFalse(Elements::isElement($element), 'html5 element test failed on: ' . $element);
 
@@ -345,11 +347,11 @@ class ElementsTest extends TestCase
         foreach ($this->html5Elements as $element) {
             $this->assertGreaterThan(0, Elements::element($element));
         }
-        $nonhtml5 = array(
+        $nonhtml5 = [
             'foo',
             'bar',
             'baz',
-        );
+        ];
         foreach ($nonhtml5 as $element) {
             $this->assertEquals(0, Elements::element($element));
         }
@@ -362,7 +364,7 @@ class ElementsTest extends TestCase
         $this->assertTrue(Elements::isA('script', Elements::TEXT_RAW));
         $this->assertFalse(Elements::isA('script', Elements::TEXT_RCDATA));
 
-        $voidElements = array(
+        $voidElements = [
             'area',
             'base',
             'basefont',
@@ -374,22 +376,22 @@ class ElementsTest extends TestCase
             'frame',
             'hr',
             'img',
-        );
+        ];
 
         foreach ($voidElements as $element) {
             $this->assertTrue(Elements::isA($element, Elements::VOID_TAG), 'Void element test failed on: ' . $element);
         }
 
-        $nonVoid = array(
+        $nonVoid = [
             'span',
             'a',
             'div',
-        );
+        ];
         foreach ($nonVoid as $tag) {
             $this->assertFalse(Elements::isA($tag, Elements::VOID_TAG), 'Void element test failed on: ' . $tag);
         }
 
-        $blockTags = array(
+        $blockTags = [
             'address',
             'article',
             'aside',
@@ -421,18 +423,18 @@ class ElementsTest extends TestCase
             'table',
             'tfoot',
             'ul',
-        );
+        ];
 
         foreach ($blockTags as $tag) {
             $this->assertTrue(Elements::isA($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
         }
 
-        $nonBlockTags = array(
+        $nonBlockTags = [
             'span',
             'img',
             'label',
             'video',
-        );
+        ];
         foreach ($nonBlockTags as $tag) {
             $this->assertFalse(Elements::isA($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
         }
@@ -440,14 +442,14 @@ class ElementsTest extends TestCase
 
     public function testNormalizeSvgElement()
     {
-        $tests = array(
+        $tests = [
             'foo' => 'foo',
             'altglyph' => 'altGlyph',
             'BAR' => 'bar',
             'fespecularlighting' => 'feSpecularLighting',
             'bAz' => 'baz',
             'foreignobject' => 'foreignObject',
-        );
+        ];
 
         foreach ($tests as $input => $expected) {
             $this->assertEquals($expected, Elements::normalizeSvgElement($input));
@@ -456,14 +458,14 @@ class ElementsTest extends TestCase
 
     public function testNormalizeSvgAttribute()
     {
-        $tests = array(
+        $tests = [
             'foo' => 'foo',
             'attributename' => 'attributeName',
             'BAR' => 'bar',
             'limitingconeangle' => 'limitingConeAngle',
             'bAz' => 'baz',
             'patterncontentunits' => 'patternContentUnits',
-        );
+        ];
 
         foreach ($tests as $input => $expected) {
             $this->assertEquals($expected, Elements::normalizeSvgAttribute($input));
@@ -472,11 +474,11 @@ class ElementsTest extends TestCase
 
     public function testNormalizeMathMlAttribute()
     {
-        $tests = array(
+        $tests = [
             'foo' => 'foo',
             'definitionurl' => 'definitionURL',
             'BAR' => 'bar',
-        );
+        ];
 
         foreach ($tests as $input => $expected) {
             $this->assertEquals($expected, Elements::normalizeMathMlAttribute($input));

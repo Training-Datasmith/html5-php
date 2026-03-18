@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Elements;
@@ -28,114 +30,114 @@ class DOMTreeBuilder implements EventHandler
     /**
      * Defined in http://www.w3.org/TR/html51/infrastructure.html#html-namespace-0.
      */
-    const NAMESPACE_HTML = 'http://www.w3.org/1999/xhtml';
+    public const NAMESPACE_HTML = 'http://www.w3.org/1999/xhtml';
 
-    const NAMESPACE_MATHML = 'http://www.w3.org/1998/Math/MathML';
+    public const NAMESPACE_MATHML = 'http://www.w3.org/1998/Math/MathML';
 
-    const NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
+    public const NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
 
-    const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
+    public const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
 
-    const NAMESPACE_XML = 'http://www.w3.org/XML/1998/namespace';
+    public const NAMESPACE_XML = 'http://www.w3.org/XML/1998/namespace';
 
-    const NAMESPACE_XMLNS = 'http://www.w3.org/2000/xmlns/';
+    public const NAMESPACE_XMLNS = 'http://www.w3.org/2000/xmlns/';
 
-    const OPT_DISABLE_HTML_NS = 'disable_html_ns';
+    public const OPT_DISABLE_HTML_NS = 'disable_html_ns';
 
-    const OPT_TARGET_DOC = 'target_document';
+    public const OPT_TARGET_DOC = 'target_document';
 
-    const OPT_IMPLICIT_NS = 'implicit_namespaces';
+    public const OPT_IMPLICIT_NS = 'implicit_namespaces';
 
     /**
      * Holds the HTML5 element names that causes a namespace switch.
      *
      * @var array
      */
-    protected $nsRoots = array(
+    protected $nsRoots = [
         'html' => self::NAMESPACE_HTML,
         'svg' => self::NAMESPACE_SVG,
         'math' => self::NAMESPACE_MATHML,
-    );
+    ];
 
     /**
      * Holds the always available namespaces (which does not require the XMLNS declaration).
      *
      * @var array
      */
-    protected $implicitNamespaces = array(
+    protected $implicitNamespaces = [
         'xml' => self::NAMESPACE_XML,
         'xmlns' => self::NAMESPACE_XMLNS,
         'xlink' => self::NAMESPACE_XLINK,
-    );
+    ];
 
     /**
      * Holds a stack of currently active namespaces.
      *
      * @var array
      */
-    protected $nsStack = array();
+    protected $nsStack = [];
 
     /**
      * Holds the number of namespaces declared by a node.
      *
      * @var array
      */
-    protected $pushes = array();
+    protected $pushes = [];
 
     /**
      * Defined in 8.2.5.
      */
-    const IM_INITIAL = 0;
+    public const IM_INITIAL = 0;
 
-    const IM_BEFORE_HTML = 1;
+    public const IM_BEFORE_HTML = 1;
 
-    const IM_BEFORE_HEAD = 2;
+    public const IM_BEFORE_HEAD = 2;
 
-    const IM_IN_HEAD = 3;
+    public const IM_IN_HEAD = 3;
 
-    const IM_IN_HEAD_NOSCRIPT = 4;
+    public const IM_IN_HEAD_NOSCRIPT = 4;
 
-    const IM_AFTER_HEAD = 5;
+    public const IM_AFTER_HEAD = 5;
 
-    const IM_IN_BODY = 6;
+    public const IM_IN_BODY = 6;
 
-    const IM_TEXT = 7;
+    public const IM_TEXT = 7;
 
-    const IM_IN_TABLE = 8;
+    public const IM_IN_TABLE = 8;
 
-    const IM_IN_TABLE_TEXT = 9;
+    public const IM_IN_TABLE_TEXT = 9;
 
-    const IM_IN_CAPTION = 10;
+    public const IM_IN_CAPTION = 10;
 
-    const IM_IN_COLUMN_GROUP = 11;
+    public const IM_IN_COLUMN_GROUP = 11;
 
-    const IM_IN_TABLE_BODY = 12;
+    public const IM_IN_TABLE_BODY = 12;
 
-    const IM_IN_ROW = 13;
+    public const IM_IN_ROW = 13;
 
-    const IM_IN_CELL = 14;
+    public const IM_IN_CELL = 14;
 
-    const IM_IN_SELECT = 15;
+    public const IM_IN_SELECT = 15;
 
-    const IM_IN_SELECT_IN_TABLE = 16;
+    public const IM_IN_SELECT_IN_TABLE = 16;
 
-    const IM_AFTER_BODY = 17;
+    public const IM_AFTER_BODY = 17;
 
-    const IM_IN_FRAMESET = 18;
+    public const IM_IN_FRAMESET = 18;
 
-    const IM_AFTER_FRAMESET = 19;
+    public const IM_AFTER_FRAMESET = 19;
 
-    const IM_AFTER_AFTER_BODY = 20;
+    public const IM_AFTER_AFTER_BODY = 20;
 
-    const IM_AFTER_AFTER_FRAMESET = 21;
+    public const IM_AFTER_AFTER_FRAMESET = 21;
 
-    const IM_IN_SVG = 22;
+    public const IM_IN_SVG = 22;
 
-    const IM_IN_MATHML = 23;
+    public const IM_IN_MATHML = 23;
 
-    protected $options = array();
+    protected $options = [];
 
-    protected $stack = array();
+    protected $stack = [];
 
     protected $current; // Pointer in the tag hierarchy.
     protected $rules;
@@ -160,9 +162,9 @@ class DOMTreeBuilder implements EventHandler
      */
     protected $quirks = true;
 
-    protected $errors = array();
+    protected $errors = [];
 
-    public function __construct($isFragment = false, array $options = array())
+    public function __construct($isFragment = false, array $options = [])
     {
         $this->options = $options;
 
@@ -179,14 +181,14 @@ class DOMTreeBuilder implements EventHandler
             $this->doc->encoding = !empty($options['encoding']) ? $options['encoding'] : 'UTF-8';
         }
 
-        $this->errors = array();
+        $this->errors = [];
 
         $this->current = $this->doc; // ->documentElement;
 
         // Create a rules engine for tags.
         $this->rules = new TreeBuildingRules();
 
-        $implicitNS = array();
+        $implicitNS = [];
         if (isset($this->options[self::OPT_IMPLICIT_NS])) {
             $implicitNS = $this->options[self::OPT_IMPLICIT_NS];
         } elseif (isset($this->options['implicitNamespaces'])) {
@@ -194,7 +196,7 @@ class DOMTreeBuilder implements EventHandler
         }
 
         // Fill $nsStack with the defalut HTML5 namespaces, plus the "implicitNamespaces" array taken form $options
-        array_unshift($this->nsStack, $implicitNS + array('' => self::NAMESPACE_HTML) + $this->implicitNamespaces);
+        array_unshift($this->nsStack, $implicitNS + ['' => self::NAMESPACE_HTML] + $this->implicitNamespaces);
 
         if ($isFragment) {
             $this->insertMode = static::IM_IN_BODY;
@@ -265,7 +267,7 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return int
      */
-    public function startTag($name, $attributes = array(), $selfClosing = false)
+    public function startTag($name, $attributes = [], $selfClosing = false)
     {
         $lname = $this->normalizeTagName($name);
 
@@ -328,9 +330,9 @@ class DOMTreeBuilder implements EventHandler
         $pushes = 0;
         // when we found a tag thats appears inside $nsRoots, we have to switch the defalut namespace
         if (isset($this->nsRoots[$lname]) && $this->nsStack[0][''] !== $this->nsRoots[$lname]) {
-            array_unshift($this->nsStack, array(
+            array_unshift($this->nsStack, [
                 '' => $this->nsRoots[$lname],
-            ) + $this->nsStack[0]);
+            ] + $this->nsStack[0]);
             ++$pushes;
         }
         $needsWorkaround = false;
@@ -339,14 +341,14 @@ class DOMTreeBuilder implements EventHandler
             foreach ($attributes as $aName => $aVal) {
                 if ('xmlns' === $aName) {
                     $needsWorkaround = $aVal;
-                    array_unshift($this->nsStack, array(
+                    array_unshift($this->nsStack, [
                         '' => $aVal,
-                    ) + $this->nsStack[0]);
+                    ] + $this->nsStack[0]);
                     ++$pushes;
                 } elseif ('xmlns' === (($pos = strpos($aName, ':')) ? substr($aName, 0, $pos) : '')) {
-                    array_unshift($this->nsStack, array(
+                    array_unshift($this->nsStack, [
                         substr($aName, $pos + 1) => $aVal,
-                    ) + $this->nsStack[0]);
+                    ] + $this->nsStack[0]);
                     ++$pushes;
                 }
             }
@@ -399,7 +401,7 @@ class DOMTreeBuilder implements EventHandler
             // PHP tends to free the memory used by DOM,
             // to avoid spl_object_hash collisions whe have to avoid garbage collection of $ele storing it into $pushes
             // see https://bugs.php.net/bug.php?id=67459
-            $this->pushes[spl_object_hash($ele)] = array($pushes, $ele);
+            $this->pushes[spl_object_hash($ele)] = [$pushes, $ele];
         }
 
         foreach ($attributes as $aName => $aVal) {
@@ -497,12 +499,12 @@ class DOMTreeBuilder implements EventHandler
 
         if ($this->insertMode <= static::IM_BEFORE_HTML) {
             // 8.2.5.4.2
-            if (in_array($name, array(
+            if (in_array($name, [
                 'html',
                 'br',
                 'head',
                 'title',
-            ))) {
+            ])) {
                 $this->startTag('html');
                 $this->endTag($name);
                 $this->insertMode = static::IM_BEFORE_HEAD;

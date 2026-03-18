@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -21,11 +23,11 @@ namespace Masterminds\HTML5\Parser;
  */
 interface EventHandler
 {
-    const DOCTYPE_NONE = 0;
+    public const DOCTYPE_NONE = 0;
 
-    const DOCTYPE_PUBLIC = 1;
+    public const DOCTYPE_PUBLIC = 1;
 
-    const DOCTYPE_SYSTEM = 2;
+    public const DOCTYPE_SYSTEM = 2;
 
     /**
      * A doctype declaration.
@@ -65,7 +67,7 @@ interface EventHandler
      *
      * @return int one of the Tokenizer::TEXTMODE_* constants
      */
-    public function startTag($name, $attributes = array(), $selfClosing = false);
+    public function startTag($name, $attributes = [], $selfClosing = false);
 
     /**
      * An end-tag.

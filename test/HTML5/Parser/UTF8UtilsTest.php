@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests\Parser;
 
 use Masterminds\HTML5\Parser\UTF8Utils;

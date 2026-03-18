@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @file
  * Test the Scanner. This requires the InputStream tests are all good.

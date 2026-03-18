@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Tests\Serializer;
 
 use Masterminds\HTML5\Serializer\OutputRules;
@@ -51,10 +53,10 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
         $t = new Traverser($dom, $stream, $html5->getOptions());
 
         // We return both the traverser and stream so we can pull from it.
-        return array(
+        return [
             $t,
             $stream,
-        );
+        ];
     }
 
     public function testConstruct()

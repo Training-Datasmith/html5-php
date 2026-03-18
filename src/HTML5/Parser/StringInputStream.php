@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Loads a string to be parsed.
  */
@@ -63,7 +65,7 @@ class StringInputStream implements InputStream
     /**
      * Parse errors.
      */
-    public $errors = array();
+    public $errors = [];
 
     /**
      * Create a new InputStream wrapper.
@@ -108,11 +110,11 @@ class StringInputStream implements InputStream
          * represented by LF characters, and there are never any CR characters in the input to the tokenization
          * stage.
          */
-        $crlfTable = array(
+        $crlfTable = [
             "\0" => "\xEF\xBF\xBD",
             "\r\n" => "\n",
             "\r" => "\n",
-        );
+        ];
 
         return strtr($data, $crlfTable);
     }

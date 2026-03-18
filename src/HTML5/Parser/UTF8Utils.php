@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Masterminds\HTML5\Parser;
 
 /*
@@ -34,7 +36,7 @@ class UTF8Utils
     /**
      * The Unicode replacement character.
      */
-    const FFFD = "\xEF\xBF\xBD";
+    public const FFFD = "\xEF\xBF\xBD";
 
     /**
      * Count the number of characters in a string.
@@ -135,7 +137,7 @@ class UTF8Utils
     public static function checkForIllegalCodepoints($data)
     {
         // Vestigal error handling.
-        $errors = array();
+        $errors = [];
 
         /*
          * All U+0000 null characters in the input must be replaced by U+FFFD REPLACEMENT CHARACTERs.
@@ -167,7 +169,10 @@ class UTF8Utils
         \xEF\xBF[\xBE\xBF] # U+FFFE and U+FFFF
       |
         [\xF0-\xF4][\x8F-\xBF]\xBF[\xBE\xBF] # U+nFFFE and U+nFFFF (1 <= n <= 10_{16})
-      )/x', $data, $matches);
+      )/x',
+            $data,
+            $matches
+        );
         for ($i = 0; $i < $count; ++$i) {
             $errors[] = 'invalid-codepoint';
         }

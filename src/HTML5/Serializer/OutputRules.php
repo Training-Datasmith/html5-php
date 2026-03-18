@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @file
  * The rules for generating output in the serializer.
@@ -19,36 +21,36 @@ class OutputRules implements RulesInterface
     /**
      * Defined in http://www.w3.org/TR/html51/infrastructure.html#html-namespace-0.
      */
-    const NAMESPACE_HTML = 'http://www.w3.org/1999/xhtml';
+    public const NAMESPACE_HTML = 'http://www.w3.org/1999/xhtml';
 
-    const NAMESPACE_MATHML = 'http://www.w3.org/1998/Math/MathML';
+    public const NAMESPACE_MATHML = 'http://www.w3.org/1998/Math/MathML';
 
-    const NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
+    public const NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
 
-    const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
+    public const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
 
-    const NAMESPACE_XML = 'http://www.w3.org/XML/1998/namespace';
+    public const NAMESPACE_XML = 'http://www.w3.org/XML/1998/namespace';
 
-    const NAMESPACE_XMLNS = 'http://www.w3.org/2000/xmlns/';
+    public const NAMESPACE_XMLNS = 'http://www.w3.org/2000/xmlns/';
 
     /**
      * Holds the HTML5 element names that causes a namespace switch.
      *
      * @var array
      */
-    protected $implicitNamespaces = array(
+    protected $implicitNamespaces = [
         self::NAMESPACE_HTML,
         self::NAMESPACE_SVG,
         self::NAMESPACE_MATHML,
         self::NAMESPACE_XML,
         self::NAMESPACE_XMLNS,
-    );
+    ];
 
-    const IM_IN_HTML = 1;
+    public const IM_IN_HTML = 1;
 
-    const IM_IN_SVG = 2;
+    public const IM_IN_SVG = 2;
 
-    const IM_IN_MATHML = 3;
+    public const IM_IN_MATHML = 3;
 
     /**
      * Used as cache to detect if is available ENT_HTML5.
@@ -67,7 +69,7 @@ class OutputRules implements RulesInterface
 
     private $xpath;
 
-    protected $nonBooleanAttributes = array(
+    protected $nonBooleanAttributes = [
         /*
         array(
             'nodeNamespace'=>'http://www.w3.org/1999/xhtml',
@@ -77,9 +79,9 @@ class OutputRules implements RulesInterface
             'attrName'=>'alt', 'attrName'=>array('title', 'alt'),
         ),
         */
-        array(
+        [
             'nodeNamespace' => 'http://www.w3.org/1999/xhtml',
-            'attrName' => array('href',
+            'attrName' => ['href',
                 'hreflang',
                 'http-equiv',
                 'icon',
@@ -149,17 +151,17 @@ class OutputRules implements RulesInterface
                 'align',
                 'alt',
                 'bgcolor',
-            ),
-        ),
-        array(
+            ],
+        ],
+        [
             'nodeNamespace' => 'http://www.w3.org/1999/xhtml',
             'xpath' => 'starts-with(local-name(), \'data-\')',
-        ),
-    );
+        ],
+    ];
 
-    const DOCTYPE = '<!DOCTYPE html>';
+    public const DOCTYPE = '<!DOCTYPE html>';
 
-    public function __construct($output, $options = array())
+    public function __construct($output, $options = [])
     {
         if (isset($options['encode_entities'])) {
             $this->encode = $options['encode_entities'];
@@ -537,18 +539,18 @@ class OutputRules implements RulesInterface
         // match the requirements of section 8.5. For example, it doesn't handle
         // non-breaking spaces.
         if ($attribute) {
-            $replace = array(
+            $replace = [
                 '"' => '&quot;',
                 '&' => '&amp;',
                 "\xc2\xa0" => '&nbsp;',
-            );
+            ];
         } else {
-            $replace = array(
+            $replace = [
                 '<' => '&lt;',
                 '>' => '&gt;',
                 '&' => '&amp;',
                 "\xc2\xa0" => '&nbsp;',
-            );
+            ];
         }
 
         return strtr($text, $replace);
