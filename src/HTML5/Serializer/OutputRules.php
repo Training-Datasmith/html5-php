@@ -510,11 +510,8 @@ class OutputRules implements RulesInterface
 
         if ($this->hasHTML5) {
             return htmlentities($text, ENT_HTML5 | ENT_SUBSTITUTE | ENT_QUOTES, 'UTF-8', false);
-        }         // If a version earlier than 5.4 html5 entities are not entirely handled.
-        // This manually handles them.
-        else {
-            return strtr($text, HTML5Entities::$map);
         }
+        return strtr($text, HTML5Entities::$map);
     }
 
     /**

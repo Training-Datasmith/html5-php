@@ -119,7 +119,7 @@ class UTF8Utils
          * One leading U+FEFF BYTE ORDER MARK character must be ignored if any are present.
          */
         if ("\xEF\xBB\xBF" === substr($data, 0, 3)) {
-            $data = substr($data, 3);
+            return substr($data, 3);
         }
 
         return $data;

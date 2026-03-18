@@ -556,7 +556,13 @@ class Elements
      */
     public static function isElement($name)
     {
-        return static::isHtml5Element($name) || static::isMathMLElement($name) || static::isSvgElement($name);
+        if (static::isHtml5Element($name)) {
+            return true;
+        }
+        if (static::isMathMLElement($name)) {
+            return true;
+        }
+        return static::isSvgElement($name);
     }
 
     /**
@@ -592,7 +598,7 @@ class Elements
     {
         $name = strtolower($name);
         if (isset(static::$svgCaseSensitiveElementMap[$name])) {
-            $name = static::$svgCaseSensitiveElementMap[$name];
+            return static::$svgCaseSensitiveElementMap[$name];
         }
 
         return $name;
@@ -609,7 +615,7 @@ class Elements
     {
         $name = strtolower($name);
         if (isset(static::$svgCaseSensitiveAttributeMap[$name])) {
-            $name = static::$svgCaseSensitiveAttributeMap[$name];
+            return static::$svgCaseSensitiveAttributeMap[$name];
         }
 
         return $name;
@@ -629,7 +635,7 @@ class Elements
 
         // Only one attribute has a mixed case form for MathML.
         if ('definitionurl' === $name) {
-            $name = 'definitionURL';
+            return 'definitionURL';
         }
 
         return $name;

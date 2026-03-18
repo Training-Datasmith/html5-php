@@ -41,7 +41,7 @@ class Tokenizer
     protected $carryOn = true;
 
     protected $textMode = 0; // TEXTMODE_NORMAL;
-    protected $untilTag = null;
+    protected $untilTag;
 
     const CONFORMANT_XML = 'xml';
     const CONFORMANT_HTML = 'html';
@@ -317,15 +317,19 @@ class Tokenizer
     protected function markupDeclaration()
     {
         $tok = $this->scanner->next();
-
         // Comment:
         if ('-' == $tok && '-' == $this->scanner->peek()) {
             $this->scanner->consume(2);
-
             return $this->comment();
-        } elseif ('D' == $tok || 'd' == $tok) { // Doctype
+        }
+        if ('D' == $tok || 'd' == $tok) {
+            // Doctype
             return $this->doctype();
-        } elseif ('[' == $tok) { // CDATA section
+        }
+
+        // Comment:
+        if ('[' == $tok) {
+            // CDATA section
             return $this->cdataSection();
         }
 
@@ -459,7 +463,7 @@ class Tokenizer
      *
      * @throws ParseError
      */
-    protected function attribute(&$attributes)
+    protected function attribute(array &$attributes)
     {
         $tok = $this->scanner->current();
         if ('/' == $tok || '>' == $tok || false === $tok) {
