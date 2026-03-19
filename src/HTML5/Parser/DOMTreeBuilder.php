@@ -373,7 +373,9 @@ class DOMTreeBuilder implements EventHandler
             $prefix = ($pos = strpos($lname, ':')) ? substr($lname, 0, $pos) : '';
 
             if (false !== $needsWorkaround) {
-                $xml = "<$lname xmlns=\"$needsWorkaround\" " . (strlen($prefix) && isset($this->nsStack[0][$prefix]) ? ("xmlns:$prefix=\"" . $this->nsStack[0][$prefix] . '"') : '') . '/>';
+                $safeNs = htmlspecialchars((string) $needsWorkaround, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+                $safeNsPrefix = strlen($prefix) && isset($this->nsStack[0][$prefix]) ? htmlspecialchars((string) $this->nsStack[0][$prefix], ENT_XML1 | ENT_QUOTES, 'UTF-8') : null;
+                $xml = "<$lname xmlns=\"$safeNs\" " . ($safeNsPrefix !== null ? ("xmlns:$prefix=\"" . $safeNsPrefix . '"') : '') . '/>';
 
                 $frag = new \DOMDocument('1.0', 'UTF-8');
                 $frag->loadXML($xml);
