@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -15,33 +14,16 @@ namespace Masterminds\HTML5\Parser;
  * @todo - colgroup and col special behaviors
  *       - body and head special behaviors
  */
-class TreeBuildingRules
+class Tree_Building_Rules
 {
-    protected static $tags = [
-        'li' => 1,
-        'dd' => 1,
-        'dt' => 1,
-        'rt' => 1,
-        'rp' => 1,
-        'tr' => 1,
-        'th' => 1,
-        'td' => 1,
-        'thead' => 1,
-        'tfoot' => 1,
-        'tbody' => 1,
-        'table' => 1,
-        'optgroup' => 1,
-        'option' => 1,
-    ];
-
+    protected static $tags = ['li' => 1, 'dd' => 1, 'dt' => 1, 'rt' => 1, 'rp' => 1, 'tr' => 1, 'th' => 1, 'td' => 1, 'thead' => 1, 'tfoot' => 1, 'tbody' => 1, 'table' => 1, 'optgroup' => 1, 'option' => 1];
     /**
      * Returns true if the given tagname has special processing rules.
      */
-    public function hasRules($tagname)
+    public function has_rules($tagname)
     {
         return isset(static::$tags[$tagname]);
     }
-
     /**
      * Evaluate the rule for the current tag name.
      *
@@ -51,78 +33,52 @@ class TreeBuildingRules
      */
     public function evaluate($new, $current)
     {
-        switch ($new->tagName) {
+        switch ($new->tag_name) {
             case 'li':
-                return $this->handleLI($new, $current);
+                return $this->handle_li($new, $current);
             case 'dt':
             case 'dd':
-                return $this->handleDT($new, $current);
+                return $this->handle_dt($new, $current);
             case 'rt':
             case 'rp':
-                return $this->handleRT($new, $current);
+                return $this->handle_rt($new, $current);
             case 'optgroup':
-                return $this->closeIfCurrentMatches($new, $current, [
-                    'optgroup',
-                ]);
+                return $this->close_if_current_matches($new, $current, ['optgroup']);
             case 'option':
-                return $this->closeIfCurrentMatches($new, $current, [
-                    'option',
-                ]);
+                return $this->close_if_current_matches($new, $current, ['option']);
             case 'tr':
-                return $this->closeIfCurrentMatches($new, $current, [
-                    'tr',
-                ]);
+                return $this->close_if_current_matches($new, $current, ['tr']);
             case 'td':
             case 'th':
-                return $this->closeIfCurrentMatches($new, $current, [
-                    'th',
-                    'td',
-                ]);
+                return $this->close_if_current_matches($new, $current, ['th', 'td']);
             case 'tbody':
             case 'thead':
             case 'tfoot':
-            case 'table': // Spec isn't explicit about this, but it's necessary.
-                return $this->closeIfCurrentMatches($new, $current, [
-                    'thead',
-                    'tfoot',
-                    'tbody',
-                ]);
+            case 'table':
+                // Spec isn't explicit about this, but it's necessary.
+                return $this->close_if_current_matches($new, $current, ['thead', 'tfoot', 'tbody']);
         }
-
         return $current;
     }
-
-    protected function handleLI($ele, $current)
+    protected function handle_li($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, [
-            'li',
-        ]);
+        return $this->close_if_current_matches($ele, $current, ['li']);
     }
-
-    protected function handleDT($ele, $current)
+    protected function handle_dt($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, [
-            'dt',
-            'dd',
-        ]);
+        return $this->close_if_current_matches($ele, $current, ['dt', 'dd']);
     }
-
-    protected function handleRT($ele, $current)
+    protected function handle_rt($ele, $current)
     {
-        return $this->closeIfCurrentMatches($ele, $current, [
-            'rt',
-            'rp',
-        ]);
+        return $this->close_if_current_matches($ele, $current, ['rt', 'rp']);
     }
-
-    protected function closeIfCurrentMatches($ele, $current, $match)
+    protected function close_if_current_matches($ele, $current, $match)
     {
-        if (in_array($current->tagName, $match, true)) {
-            $current->parentNode->appendChild($ele);
+        if (in_array($current->tag_name, $match, true)) {
+            $current->parent_node->append_child($ele);
         } else {
-            $current->appendChild($ele);
+            $current->append_child($ele);
         }
-
         return $ele;
     }
 }

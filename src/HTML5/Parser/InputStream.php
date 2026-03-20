@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -15,15 +14,14 @@ namespace Masterminds\HTML5\Parser;
  *
  * @deprecated since 2.4, to remove in 3.0. Use a string in the scanner instead.
  */
-interface InputStream extends \Iterator
+interface Input_Stream extends \Iterator
 {
     /**
      * Returns the current line that is being consumed.
      *
      * TODO: Move this to the scanner.
      */
-    public function currentLine();
-
+    public function current_line();
     /**
      * Returns the current column of the current line that the tokenizer is at.
      *
@@ -33,15 +31,13 @@ interface InputStream extends \Iterator
      *
      * @return int The column number.
      */
-    public function columnOffset();
-
+    public function column_offset();
     /**
      * Get all characters until EOF.
      *
      * This consumes characters until the EOF.
      */
-    public function remainingChars();
-
+    public function remaining_chars();
     /**
      * Read to a particular match (or until $max bytes are consumed).
      *
@@ -58,8 +54,7 @@ interface InputStream extends \Iterator
      * @return mixed Index or false if no match is found. You should use strong
      *               equality when checking the result, since index could be 0.
      */
-    public function charsUntil($bytes, $max = null);
-
+    public function chars_until($bytes, $max = null);
     /**
      * Returns the string so long as $bytes matches.
      *
@@ -73,15 +68,13 @@ interface InputStream extends \Iterator
      *                      substring.
      * @param int    $max   The max number of chars to read.
      */
-    public function charsWhile($bytes, $max = null);
-
+    public function chars_while($bytes, $max = null);
     /**
      * Unconsume one character.
      *
      * @param int $howMany The number of characters to move the pointer back.
      */
-    public function unconsume($howMany = 1);
-
+    public function unconsume($how_many = 1);
     /**
      * Retrieve the next character without advancing the pointer.
      */

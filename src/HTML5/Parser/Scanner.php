@@ -1,11 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Exception;
-
 /**
  * The scanner scans over a given data input to react appropriately to characters.
  */
@@ -14,27 +12,22 @@ class Scanner
     public const CHARS_HEX = 'abcdefABCDEF01234567890';
     public const CHARS_ALNUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890';
     public const CHARS_ALPHA = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
     /**
      * The string data we're parsing.
      */
     private $data;
-
     /**
      * The current integer byte position we are in $data.
      */
     private $char;
-
     /**
      * Length of $data; when $char === $data, we are at the end-of-file.
      */
     private $EOF;
-
     /**
      * Parse errors.
      */
     public $errors = [];
-
     /**
      * Create a new Scanner.
      *
@@ -45,25 +38,20 @@ class Scanner
      */
     public function __construct($data, $encoding = 'UTF-8')
     {
-        if ($data instanceof InputStream) {
+        if ($data instanceof Input_Stream) {
             @trigger_error('InputStream objects are deprecated since version 2.4 and will be removed in 3.0. Use strings instead.', E_USER_DEPRECATED);
             $data = (string) $data;
         }
-
-        $data = UTF8Utils::convertToUTF8($data, $encoding);
-
+        $data = UTF8Utils::convert_to_utf8($data, $encoding);
         // There is good reason to question whether it makes sense to
         // do this here, since most of these checks are done during
         // parsing, and since this check doesn't actually *do* anything.
-        $this->errors = UTF8Utils::checkForIllegalCodepoints($data);
-
-        $data = $this->replaceLinefeeds($data);
-
+        $this->errors = UTF8Utils::check_for_illegal_codepoints($data);
+        $data = $this->replace_linefeeds($data);
         $this->data = $data;
         $this->char = 0;
         $this->EOF = strlen($data);
     }
-
     /**
      * Check if upcomming chars match the given sequence.
      *
@@ -82,13 +70,11 @@ class Scanner
      *
      * @return bool
      */
-    public function sequenceMatches($sequence, $caseSensitive = true)
+    public function sequence_matches($sequence, $case_sensitive = true)
     {
         $portion = substr($this->data, $this->char, strlen($sequence));
-
-        return $caseSensitive ? $portion === $sequence : 0 === strcasecmp($portion, $sequence);
+        return $case_sensitive ? $portion === $sequence : 0 === strcasecmp($portion, $sequence);
     }
-
     /**
      * Get the current position.
      *
@@ -98,7 +84,6 @@ class Scanner
     {
         return $this->char;
     }
-
     /**
      * Take a peek at the next character in the data.
      *
@@ -106,13 +91,11 @@ class Scanner
      */
     public function peek()
     {
-        if (($this->char + 1) < $this->EOF) {
+        if ($this->char + 1 < $this->EOF) {
             return $this->data[$this->char + 1];
         }
-
         return false;
     }
-
     /**
      * Get the next character.
      * Note: This advances the pointer.
@@ -122,14 +105,11 @@ class Scanner
     public function next()
     {
         ++$this->char;
-
         if ($this->char < $this->EOF) {
             return $this->data[$this->char];
         }
-
         return false;
     }
-
     /**
      * Get the current character.
      * Note, this does not advance the pointer.
@@ -141,10 +121,8 @@ class Scanner
         if ($this->char < $this->EOF) {
             return $this->data[$this->char];
         }
-
         return false;
     }
-
     /**
      * Silently consume N chars.
      *
@@ -154,20 +132,18 @@ class Scanner
     {
         $this->char += $count;
     }
-
     /**
      * Unconsume some of the data.
      * This moves the data pointer backwards.
      *
      * @param int $howMany The number of characters to move the pointer back.
      */
-    public function unconsume($howMany = 1)
+    public function unconsume($how_many = 1)
     {
-        if (($this->char - $howMany) >= 0) {
-            $this->char -= $howMany;
+        if ($this->char - $how_many >= 0) {
+            $this->char -= $how_many;
         }
     }
-
     /**
      * Get the next group of that contains hex characters.
      * Note, along with getting the characters the pointer in the data will be
@@ -175,11 +151,10 @@ class Scanner
      *
      * @return string The next group that is hex characters.
      */
-    public function getHex()
+    public function get_hex()
     {
-        return $this->doCharsWhile(static::CHARS_HEX);
+        return $this->do_chars_while(static::CHARS_HEX);
     }
-
     /**
      * Get the next group of characters that are ASCII Alpha characters.
      * Note, along with getting the characters the pointer in the data will be
@@ -187,11 +162,10 @@ class Scanner
      *
      * @return string The next group of ASCII alpha characters.
      */
-    public function getAsciiAlpha()
+    public function get_ascii_alpha()
     {
-        return $this->doCharsWhile(static::CHARS_ALPHA);
+        return $this->do_chars_while(static::CHARS_ALPHA);
     }
-
     /**
      * Get the next group of characters that are ASCII Alpha characters and numbers.
      * Note, along with getting the characters the pointer in the data will be
@@ -199,11 +173,10 @@ class Scanner
      *
      * @return string The next group of ASCII alpha characters and numbers.
      */
-    public function getAsciiAlphaNum()
+    public function get_ascii_alpha_num()
     {
-        return $this->doCharsWhile(static::CHARS_ALNUM);
+        return $this->do_chars_while(static::CHARS_ALNUM);
     }
-
     /**
      * Get the next group of numbers.
      * Note, along with getting the characters the pointer in the data will be
@@ -211,11 +184,10 @@ class Scanner
      *
      * @return string The next group of numbers.
      */
-    public function getNumeric()
+    public function get_numeric()
     {
-        return $this->doCharsWhile('0123456789');
+        return $this->do_chars_while('0123456789');
     }
-
     /**
      * Consume whitespace.
      * Whitespace in HTML5 is: formfeed, tab, newline, space.
@@ -227,30 +199,24 @@ class Scanner
         if ($this->char >= $this->EOF) {
             return false;
         }
-
         $len = strspn($this->data, "\n\t\f ", $this->char);
-
         $this->char += $len;
-
         return $len;
     }
-
     /**
      * Returns the current line that is being consumed.
      *
      * @return int The current line number.
      */
-    public function currentLine()
+    public function current_line()
     {
         if (empty($this->EOF) || 0 === $this->char) {
             return 1;
         }
-
         // Add one to $this->char because we want the number for the next
         // byte to be processed.
         return substr_count($this->data, "\n", 0, min($this->char, $this->EOF)) + 1;
     }
-
     /**
      * Read chars until something in the mask is encountered.
      *
@@ -258,11 +224,10 @@ class Scanner
      *
      * @return mixed
      */
-    public function charsUntil($mask)
+    public function chars_until($mask)
     {
-        return $this->doCharsUntil($mask);
+        return $this->do_chars_until($mask);
     }
-
     /**
      * Read chars as long as the mask matches.
      *
@@ -270,11 +235,10 @@ class Scanner
      *
      * @return int
      */
-    public function charsWhile($mask)
+    public function chars_while($mask)
     {
-        return $this->doCharsWhile($mask);
+        return $this->do_chars_while($mask);
     }
-
     /**
      * Returns the current column of the current line that the tokenizer is at.
      *
@@ -282,33 +246,29 @@ class Scanner
      *
      * @return int The column number.
      */
-    public function columnOffset()
+    public function column_offset()
     {
         // Short circuit for the first char.
         if (0 === $this->char) {
             return 0;
         }
-
         // strrpos is weird, and the offset needs to be negative for what we
         // want (i.e., the last \n before $this->char). This needs to not have
         // one (to make it point to the next character, the one we want the
         // position of) added to it because strrpos's behaviour includes the
         // final offset byte.
-        $backwardFrom = $this->char - 1 - strlen($this->data);
-        $lastLine = strrpos($this->data, "\n", $backwardFrom);
-
+        $backward_from = $this->char - 1 - strlen($this->data);
+        $last_line = strrpos($this->data, "\n", $backward_from);
         // However, for here we want the length up until the next byte to be
         // processed, so add one to the current byte ($this->char).
-        if (false !== $lastLine) {
-            $findLengthOf = substr($this->data, $lastLine + 1, $this->char - 1 - $lastLine);
+        if (false !== $last_line) {
+            $find_length_of = substr($this->data, $last_line + 1, $this->char - 1 - $last_line);
         } else {
             // After a newline.
-            $findLengthOf = substr($this->data, 0, $this->char);
+            $find_length_of = substr($this->data, 0, $this->char);
         }
-
-        return UTF8Utils::countChars($findLengthOf);
+        return UTF8Utils::count_chars($find_length_of);
     }
-
     /**
      * Get all characters until EOF.
      *
@@ -316,18 +276,16 @@ class Scanner
      *
      * @return int The number of characters remaining.
      */
-    public function remainingChars()
+    public function remaining_chars()
     {
         if ($this->char < $this->EOF) {
             $data = substr($this->data, $this->char);
             $this->char = $this->EOF;
-
             return $data;
         }
-
-        return ''; // false;
+        return '';
+        // false;
     }
-
     /**
      * Replace linefeed characters according to the spec.
      *
@@ -335,7 +293,7 @@ class Scanner
      *
      * @return string
      */
-    private function replaceLinefeeds($data)
+    private function replace_linefeeds($data)
     {
         /*
          * U+000D CARRIAGE RETURN (CR) characters and U+000A LINE FEED (LF) characters are treated specially.
@@ -344,15 +302,9 @@ class Scanner
          * represented by LF characters, and there are never any CR characters in the input to the tokenization
          * stage.
          */
-        $crlfTable = [
-            "\0" => "\xEF\xBF\xBD",
-            "\r\n" => "\n",
-            "\r" => "\n",
-        ];
-
-        return strtr($data, $crlfTable);
+        $crlf_table = ["\x00" => "�", "\r\n" => "\n", "\r" => "\n"];
+        return strtr($data, $crlf_table);
     }
-
     /**
      * Read to a particular match (or until $max bytes are consumed).
      *
@@ -367,24 +319,20 @@ class Scanner
      * @return mixed Index or false if no match is found. You should use strong
      *               equality when checking the result, since index could be 0.
      */
-    private function doCharsUntil($bytes, $max = null)
+    private function do_chars_until($bytes, $max = null)
     {
         if ($this->char >= $this->EOF) {
             return false;
         }
-
         if (0 === $max || $max) {
             $len = strcspn($this->data, $bytes, $this->char, $max);
         } else {
             $len = strcspn($this->data, $bytes, $this->char);
         }
-
         $string = (string) substr($this->data, $this->char, $len);
         $this->char += $len;
-
         return $string;
     }
-
     /**
      * Returns the string so long as $bytes matches.
      *
@@ -398,21 +346,18 @@ class Scanner
      *
      * @return string
      */
-    private function doCharsWhile($bytes, $max = null)
+    private function do_chars_while($bytes, $max = null)
     {
         if ($this->char >= $this->EOF) {
             return false;
         }
-
         if (0 === $max || $max) {
             $len = strspn($this->data, $bytes, $this->char, $max);
         } else {
             $len = strspn($this->data, $bytes, $this->char);
         }
-
         $string = (string) substr($this->data, $this->char, $len);
         $this->char += $len;
-
         return $string;
     }
 }

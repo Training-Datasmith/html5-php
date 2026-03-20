@@ -1,15 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds;
 
-use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5\Parser\Dom_Tree_Builder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
-use Masterminds\HTML5\Serializer\OutputRules;
+use Masterminds\HTML5\Serializer\Output_Rules;
 use Masterminds\HTML5\Serializer\Traverser;
-
 /**
  * This class offers convenience methods for parsing and serializing HTML5.
  * It is roughly designed to mirror the \DOMDocument native class.
@@ -21,31 +19,26 @@ class HTML5
      *
      * @var array
      */
-    private $defaultOptions = [
+    private $default_options = [
         // Whether the serializer should aggressively encode all characters as entities.
         'encode_entities' => false,
-
         // Prevents the parser from automatically assigning the HTML5 namespace to the DOM document.
         'disable_html_ns' => false,
     ];
-
     protected $errors = [];
-
-    public function __construct(array $defaultOptions = [])
+    public function __construct(array $default_options = [])
     {
-        $this->defaultOptions = array_merge($this->defaultOptions, $defaultOptions);
+        $this->default_options = array_merge($this->default_options, $default_options);
     }
-
     /**
      * Get the current default options.
      *
      * @return array
      */
-    public function getOptions()
+    public function get_options()
     {
-        return $this->defaultOptions;
+        return $this->default_options;
     }
-
     /**
      * Load and parse an HTML file.
      *
@@ -70,10 +63,8 @@ class HTML5
         if (is_resource($file)) {
             return $this->parse(stream_get_contents($file), $options);
         }
-
         return $this->parse(file_get_contents($file), $options);
     }
-
     /**
      * Parse a HTML Document from a string.
      *
@@ -86,11 +77,10 @@ class HTML5
      * @return \DOMDocument A DOM document. DOM is part of libxml, which is included with
      *                      almost all distribtions of PHP.
      */
-    public function loadHTML($string, array $options = [])
+    public function load_html($string, array $options = [])
     {
         return $this->parse($string, $options);
     }
-
     /**
      * Convenience function to load an HTML file.
      *
@@ -105,11 +95,10 @@ class HTML5
      * @return \DOMDocument A DOM document. These object type is defined by the libxml
      *                      library, and should have been included with your version of PHP.
      */
-    public function loadHTMLFile($file, array $options = [])
+    public function load_html_file($file, array $options = [])
     {
         return $this->load($file, $options);
     }
-
     /**
      * Parse a HTML fragment from a string.
      *
@@ -119,31 +108,28 @@ class HTML5
      * @return \DOMDocumentFragment A DOM fragment. The DOM is part of libxml, which is included with
      *                              almost all distributions of PHP.
      */
-    public function loadHTMLFragment($string, array $options = [])
+    public function load_html_fragment($string, array $options = [])
     {
-        return $this->parseFragment($string, $options);
+        return $this->parse_fragment($string, $options);
     }
-
     /**
      * Return all errors encountered into parsing phase.
      *
      * @return array
      */
-    public function getErrors()
+    public function get_errors()
     {
         return $this->errors;
     }
-
     /**
      * Return true it some errors were encountered into parsing phase.
      *
      * @return bool
      */
-    public function hasErrors()
+    public function has_errors()
     {
         return count($this->errors) > 0;
     }
-
     /**
      * Parse an input string.
      *
@@ -154,17 +140,14 @@ class HTML5
     public function parse($input, array $options = [])
     {
         $this->errors = [];
-        $options = array_merge($this->defaultOptions, $options);
-        $events = new DOMTreeBuilder(false, $options);
+        $options = array_merge($this->default_options, $options);
+        $events = new Dom_Tree_Builder(false, $options);
         $scanner = new Scanner($input, !empty($options['encoding']) ? $options['encoding'] : 'UTF-8');
         $parser = new Tokenizer($scanner, $events, !empty($options['xmlNamespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
-
         $parser->parse();
-        $this->errors = $events->getErrors();
-
+        $this->errors = $events->get_errors();
         return $events->document();
     }
-
     /**
      * Parse an input stream where the stream is a fragment.
      *
@@ -176,19 +159,16 @@ class HTML5
      *
      * @return \DOMDocumentFragment
      */
-    public function parseFragment($input, array $options = [])
+    public function parse_fragment($input, array $options = [])
     {
-        $options = array_merge($this->defaultOptions, $options);
-        $events = new DOMTreeBuilder(true, $options);
+        $options = array_merge($this->default_options, $options);
+        $events = new Dom_Tree_Builder(true, $options);
         $scanner = new Scanner($input, !empty($options['encoding']) ? $options['encoding'] : 'UTF-8');
         $parser = new Tokenizer($scanner, $events, !empty($options['xmlNamespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
-
         $parser->parse();
-        $this->errors = $events->getErrors();
-
+        $this->errors = $events->get_errors();
         return $events->fragment();
     }
-
     /**
      * Save a DOM into a given file as HTML5.
      *
@@ -208,20 +188,18 @@ class HTML5
         } else {
             $stream = fopen($file, 'wb');
         }
-        $options = array_merge($this->defaultOptions, $options);
-        $rules = new OutputRules($stream, $options);
+        $options = array_merge($this->default_options, $options);
+        $rules = new Output_Rules($stream, $options);
         $trav = new Traverser($dom, $stream, $rules, $options);
-
         $trav->walk();
         /*
          * release the traverser to avoid cyclic references and allow PHP to free memory without waiting for gc_collect_cycles
          */
-        $rules->unsetTraverser();
+        $rules->unset_traverser();
         if ($close) {
             fclose($stream);
         }
     }
-
     /**
      * Convert a DOM into an HTML5 string.
      *
@@ -233,15 +211,12 @@ class HTML5
      *
      * @return string A HTML5 documented generated from the DOM.
      */
-    public function saveHTML($dom, $options = [])
+    public function save_html($dom, $options = [])
     {
         $stream = fopen('php://temp', 'wb');
-        $this->save($dom, $stream, array_merge($this->defaultOptions, $options));
-
+        $this->save($dom, $stream, array_merge($this->default_options, $options));
         $html = stream_get_contents($stream, -1, 0);
-
         fclose($stream);
-
         return $html;
     }
 }

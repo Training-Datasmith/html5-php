@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /*
@@ -28,16 +27,13 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
 use Masterminds\HTML5\Exception;
-
 class UTF8Utils
 {
     /**
      * The Unicode replacement character.
      */
-    public const FFFD = "\xEF\xBF\xBD";
-
+    public const FFFD = "�";
     /**
      * Count the number of characters in a string.
      * UTF-8 aware. This will try (in order) iconv, MB, and finally a custom counter.
@@ -46,24 +42,20 @@ class UTF8Utils
      *
      * @return int
      */
-    public static function countChars($string)
+    public static function count_chars($string)
     {
         // Get the length for the string we need.
         if (function_exists('mb_strlen')) {
             return mb_strlen($string, 'utf-8');
         }
-
         if (function_exists('iconv_strlen')) {
             return iconv_strlen($string, 'utf-8');
         }
-
         $count = count_chars($string);
-
         // 0x80 = 0x7F - 0 + 1 (one added to get inclusive range)
         // 0x33 = 0xF4 - 0x2C + 1 (one added to get inclusive range)
-        return array_sum(array_slice($count, 0, 0x80)) + array_sum(array_slice($count, 0xC2, 0x33));
+        return array_sum(array_slice($count, 0, 0x80)) + array_sum(array_slice($count, 0xc2, 0x33));
     }
-
     /**
      * Convert data from the given encoding to UTF-8.
      *
@@ -75,7 +67,7 @@ class UTF8Utils
      *
      * @return string
      */
-    public static function convertToUTF8($data, $encoding = 'UTF-8')
+    public static function convert_to_utf8($data, $encoding = 'UTF-8')
     {
         /*
          * From the HTML5 spec: Given an encoding, the bytes in the input stream must be converted
@@ -85,7 +77,6 @@ class UTF8Utils
          * in the original byte stream that could not be converted to Unicode characters must be
          * converted to U+FFFD REPLACEMENT CHARACTER code points.
          */
-
         // mb_convert_encoding is chosen over iconv because of a bug. The best
         // details for the bug are on http://us1.php.net/manual/en/function.iconv.php#108643
         // which contains links to the actual but reports as well as work around
@@ -94,7 +85,6 @@ class UTF8Utils
             // mb library has the following behaviors:
             // - UTF-16 surrogates result in false.
             // - Overlongs and outside Plane 16 result in empty strings.
-
             // Before we run mb_convert_encoding we need to tell it what to do with
             // characters it does not know. This could be different than the parent
             // application executing this library so we store the value, change it
@@ -104,9 +94,7 @@ class UTF8Utils
             mb_substitute_character('none');
             $data = mb_convert_encoding($data, 'UTF-8', $encoding);
             mb_substitute_character($save);
-        }
-        // @todo Get iconv running in at least some environments if that is possible.
-        elseif (function_exists('iconv') && 'auto' !== $encoding) {
+        } elseif (function_exists('iconv') && 'auto' !== $encoding) {
             // fprintf(STDOUT, "iconv found\n");
             // iconv has the following behaviors:
             // - Overlong representations are ignored.
@@ -116,17 +104,14 @@ class UTF8Utils
         } else {
             throw new Exception('Not implemented, please install mbstring or iconv');
         }
-
         /*
          * One leading U+FEFF BYTE ORDER MARK character must be ignored if any are present.
          */
-        if ("\xEF\xBB\xBF" === substr($data, 0, 3)) {
+        if ("﻿" === substr($data, 0, 3)) {
             return substr($data, 3);
         }
-
         return $data;
     }
-
     /**
      * Checks for Unicode code points that are not valid in a document.
      *
@@ -134,19 +119,17 @@ class UTF8Utils
      *
      * @return array An array of (string) error messages produced by the scanning
      */
-    public static function checkForIllegalCodepoints($data)
+    public static function check_for_illegal_codepoints($data)
     {
         // Vestigal error handling.
         $errors = [];
-
         /*
          * All U+0000 null characters in the input must be replaced by U+FFFD REPLACEMENT CHARACTERs.
          * Any occurrences of such characters is a parse error.
          */
-        for ($i = 0, $count = substr_count($data, "\0"); $i < $count; ++$i) {
+        for ($i = 0, $count = substr_count($data, "\x00"); $i < $count; ++$i) {
             $errors[] = 'null-character';
         }
-
         /*
          * Any occurrences of any characters in the ranges U+0001 to U+0008, U+000B, U+000E to U+001F, U+007F
          * to U+009F, U+D800 to U+DFFF , U+FDD0 to U+FDEF, and characters U+FFFE, U+FFFF, U+1FFFE, U+1FFFF,
@@ -156,8 +139,7 @@ class UTF8Utils
          * (These are all control characters or permanently undefined Unicode characters.)
          */
         // Check PCRE is loaded.
-        $count = preg_match_all(
-            '/(?:
+        $count = preg_match_all('/(?:
         [\x01-\x08\x0B\x0E-\x1F\x7F] # U+0001 to U+0008, U+000B,  U+000E to U+001F and U+007F
       |
         \xC2[\x80-\x9F] # U+0080 to U+009F
@@ -169,14 +151,10 @@ class UTF8Utils
         \xEF\xBF[\xBE\xBF] # U+FFFE and U+FFFF
       |
         [\xF0-\xF4][\x8F-\xBF]\xBF[\xBE\xBF] # U+nFFFE and U+nFFFF (1 <= n <= 10_{16})
-      )/x',
-            $data,
-            $matches
-        );
+      )/x', $data, $matches);
         for ($i = 0; $i < $count; ++$i) {
             $errors[] = 'invalid-codepoint';
         }
-
         return $errors;
     }
 }

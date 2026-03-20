@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * @file
  * The interface definition for Rules to generate output.
  */
-
 namespace Masterminds\HTML5\Serializer;
 
 /**
@@ -14,7 +13,7 @@ namespace Masterminds\HTML5\Serializer;
  *
  * For an example implementation see Serializer\OutputRules.
  */
-interface RulesInterface
+interface Rules_Interface
 {
     /**
      * The class constructor.
@@ -25,7 +24,6 @@ interface RulesInterface
      * @param array $options An array of options.
      */
     public function __construct($output, $options = []);
-
     /**
      * Register the traverser used in but the rules.
      *
@@ -35,8 +33,7 @@ interface RulesInterface
      *
      * @return RulesInterface $this for the current object.
      */
-    public function setTraverser(Traverser $traverser);
-
+    public function set_traverser(Traverser $traverser);
     /**
      * Write a document element (\DOMDocument).
      *
@@ -46,7 +43,6 @@ interface RulesInterface
      * @param \DOMDocument $dom
      */
     public function document($dom);
-
     /**
      * Write an element.
      *
@@ -56,7 +52,6 @@ interface RulesInterface
      * @param mixed $ele
      */
     public function element($ele);
-
     /**
      * Write a text node.
      *
@@ -66,7 +61,6 @@ interface RulesInterface
      * @param mixed $ele
      */
     public function text($ele);
-
     /**
      * Write a CDATA node.
      *
@@ -76,7 +70,6 @@ interface RulesInterface
      * @param mixed $ele
      */
     public function cdata($ele);
-
     /**
      * Write a comment node.
      *
@@ -86,7 +79,6 @@ interface RulesInterface
      * @param mixed $ele
      */
     public function comment($ele);
-
     /**
      * Write a processor instruction.
      *
@@ -97,5 +89,5 @@ interface RulesInterface
      *
      * @param mixed $ele
      */
-    public function processorInstruction($ele);
+    public function processor_instruction($ele);
 }

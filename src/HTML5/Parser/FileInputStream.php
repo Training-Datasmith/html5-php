@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -16,7 +15,7 @@ namespace Masterminds\HTML5\Parser;
  *
  * @deprecated since 2.4, to remove in 3.0. Use a string in the scanner instead.
  */
-class FileInputStream extends StringInputStream implements InputStream
+class File_Input_Stream extends String_Input_Stream implements Input_Stream
 {
     /**
      * Load a file input stream.
@@ -29,7 +28,6 @@ class FileInputStream extends StringInputStream implements InputStream
     {
         // Get the contents of the file.
         $content = file_get_contents($data);
-
         parent::__construct($content, $encoding, $debug);
     }
 }

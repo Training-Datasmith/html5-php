@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Serializer;
 
 /**
@@ -18,22 +17,12 @@ class Traverser
     /**
      * Namespaces that should be treated as "local" to HTML5.
      */
-    protected static $local_ns = [
-        'http://www.w3.org/1999/xhtml' => 'html',
-        'http://www.w3.org/1998/Math/MathML' => 'math',
-        'http://www.w3.org/2000/svg' => 'svg',
-    ];
-
+    protected static $local_ns = ['http://www.w3.org/1999/xhtml' => 'html', 'http://www.w3.org/1998/Math/MathML' => 'math', 'http://www.w3.org/2000/svg' => 'svg'];
     protected $dom;
-
     protected $options;
-
     protected $encode = false;
-
     protected $rules;
-
     protected $out;
-
     /**
      * Create a traverser.
      *
@@ -45,16 +34,14 @@ class Traverser
      *                                       charachter references. Defaults to false which escapes &'<>".
      *                                       - output_rules: The path to the class handling the output rules.
      */
-    public function __construct($dom, $out, RulesInterface $rules, $options = [])
+    public function __construct($dom, $out, Rules_Interface $rules, $options = [])
     {
         $this->dom = $dom;
         $this->out = $out;
         $this->rules = $rules;
         $this->options = $options;
-
-        $this->rules->setTraverser($this);
+        $this->rules->set_traverser($this);
     }
-
     /**
      * Tell the traverser to walk the DOM.
      *
@@ -62,26 +49,22 @@ class Traverser
      */
     public function walk()
     {
-        if ($this->dom instanceof \DOMDocument) {
+        if ($this->dom instanceof \Dom_Document) {
             $this->rules->document($this->dom);
-        } elseif ($this->dom instanceof \DOMDocumentFragment) {
+        } elseif ($this->dom instanceof \Dom_Document_Fragment) {
             // Document fragments are a special case. Only the children need to
             // be serialized.
-            if ($this->dom->hasChildNodes()) {
-                $this->children($this->dom->childNodes);
+            if ($this->dom->has_child_nodes()) {
+                $this->children($this->dom->child_nodes);
             }
-        }        // If NodeList, loop
-        elseif ($this->dom instanceof \DOMNodeList) {
+        } elseif ($this->dom instanceof \Dom_Node_List) {
             // If this is a NodeList of DOMDocuments this will not work.
             $this->children($this->dom);
-        }         // Else assume this is a DOMNode-like datastructure.
-        else {
+        } else {
             $this->node($this->dom);
         }
-
         return $this->out;
     }
-
     /**
      * Process a node in the DOM.
      *
@@ -90,7 +73,7 @@ class Traverser
     public function node($node)
     {
         // A listing of types is at http://php.net/manual/en/dom.constants.php
-        switch ($node->nodeType) {
+        switch ($node->node_type) {
             case XML_ELEMENT_NODE:
                 $this->rules->element($node);
                 break;
@@ -101,18 +84,17 @@ class Traverser
                 $this->rules->cdata($node);
                 break;
             case XML_PI_NODE:
-                $this->rules->processorInstruction($node);
+                $this->rules->processor_instruction($node);
                 break;
             case XML_COMMENT_NODE:
                 $this->rules->comment($node);
                 break;
-                // Currently we don't support embedding DTDs.
+            // Currently we don't support embedding DTDs.
             default:
                 //print '<!-- Skipped -->';
                 break;
         }
     }
-
     /**
      * Walk through all the nodes on a node list.
      *
@@ -124,7 +106,6 @@ class Traverser
             $this->node($node);
         }
     }
-
     /**
      * Is an element local?
      *
@@ -132,13 +113,12 @@ class Traverser
      *
      * @return bool true if local and false otherwise.
      */
-    public function isLocalElement($ele)
+    public function is_local_element($ele)
     {
-        $uri = $ele->namespaceURI;
+        $uri = $ele->namespace_uri;
         if (empty($uri)) {
             return false;
         }
-
         return isset(static::$local_ns[$uri]);
     }
 }

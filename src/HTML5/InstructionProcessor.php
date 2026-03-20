@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * A handler for processor instructions.
  */
-
 namespace Masterminds\HTML5;
 
 /**
@@ -19,7 +18,7 @@ namespace Masterminds\HTML5;
  * One could, for example, use this mechanism to execute well-formed PHP
  * code embedded inside of an HTML5 document.
  */
-interface InstructionProcessor
+interface Instruction_Processor
 {
     /**
      * Process an individual processing instruction.
@@ -39,5 +38,5 @@ interface InstructionProcessor
      *                     it may choose to reset the current element to one of the elements
      *                     it created. (When in doubt, return the element passed in.)
      */
-    public function process(\DOMElement $element, $name, $data);
+    public function process(\Dom_Element $element, $name, $data);
 }

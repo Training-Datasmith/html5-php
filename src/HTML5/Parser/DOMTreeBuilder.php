@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 use Masterminds\HTML5\Elements;
-use Masterminds\HTML5\InstructionProcessor;
-
+use Masterminds\HTML5\Instruction_Processor;
 /**
  * Create an HTML5 DOM tree from events.
  *
@@ -25,186 +23,126 @@ use Masterminds\HTML5\InstructionProcessor;
  * re-written to accomodate this. See, for example, the Go language HTML5
  * parser.
  */
-class DOMTreeBuilder implements EventHandler
+class Dom_Tree_Builder implements Event_Handler
 {
     /**
      * Defined in http://www.w3.org/TR/html51/infrastructure.html#html-namespace-0.
      */
     public const NAMESPACE_HTML = 'http://www.w3.org/1999/xhtml';
-
     public const NAMESPACE_MATHML = 'http://www.w3.org/1998/Math/MathML';
-
     public const NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
-
     public const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
-
     public const NAMESPACE_XML = 'http://www.w3.org/XML/1998/namespace';
-
     public const NAMESPACE_XMLNS = 'http://www.w3.org/2000/xmlns/';
-
     public const OPT_DISABLE_HTML_NS = 'disable_html_ns';
-
     public const OPT_TARGET_DOC = 'target_document';
-
     public const OPT_IMPLICIT_NS = 'implicit_namespaces';
-
     /**
      * Holds the HTML5 element names that causes a namespace switch.
      *
      * @var array
      */
-    protected $nsRoots = [
-        'html' => self::NAMESPACE_HTML,
-        'svg' => self::NAMESPACE_SVG,
-        'math' => self::NAMESPACE_MATHML,
-    ];
-
+    protected $ns_roots = ['html' => self::NAMESPACE_HTML, 'svg' => self::NAMESPACE_SVG, 'math' => self::NAMESPACE_MATHML];
     /**
      * Holds the always available namespaces (which does not require the XMLNS declaration).
      *
      * @var array
      */
-    protected $implicitNamespaces = [
-        'xml' => self::NAMESPACE_XML,
-        'xmlns' => self::NAMESPACE_XMLNS,
-        'xlink' => self::NAMESPACE_XLINK,
-    ];
-
+    protected $implicit_namespaces = ['xml' => self::NAMESPACE_XML, 'xmlns' => self::NAMESPACE_XMLNS, 'xlink' => self::NAMESPACE_XLINK];
     /**
      * Holds a stack of currently active namespaces.
      *
      * @var array
      */
-    protected $nsStack = [];
-
+    protected $ns_stack = [];
     /**
      * Holds the number of namespaces declared by a node.
      *
      * @var array
      */
     protected $pushes = [];
-
     /**
      * Defined in 8.2.5.
      */
     public const IM_INITIAL = 0;
-
     public const IM_BEFORE_HTML = 1;
-
     public const IM_BEFORE_HEAD = 2;
-
     public const IM_IN_HEAD = 3;
-
     public const IM_IN_HEAD_NOSCRIPT = 4;
-
     public const IM_AFTER_HEAD = 5;
-
     public const IM_IN_BODY = 6;
-
     public const IM_TEXT = 7;
-
     public const IM_IN_TABLE = 8;
-
     public const IM_IN_TABLE_TEXT = 9;
-
     public const IM_IN_CAPTION = 10;
-
     public const IM_IN_COLUMN_GROUP = 11;
-
     public const IM_IN_TABLE_BODY = 12;
-
     public const IM_IN_ROW = 13;
-
     public const IM_IN_CELL = 14;
-
     public const IM_IN_SELECT = 15;
-
     public const IM_IN_SELECT_IN_TABLE = 16;
-
     public const IM_AFTER_BODY = 17;
-
     public const IM_IN_FRAMESET = 18;
-
     public const IM_AFTER_FRAMESET = 19;
-
     public const IM_AFTER_AFTER_BODY = 20;
-
     public const IM_AFTER_AFTER_FRAMESET = 21;
-
     public const IM_IN_SVG = 22;
-
     public const IM_IN_MATHML = 23;
-
     protected $options = [];
-
     protected $stack = [];
-
-    protected $current; // Pointer in the tag hierarchy.
+    protected $current;
+    // Pointer in the tag hierarchy.
     protected $rules;
     protected $doc;
-
     protected $frag;
-
     protected $processor;
-
-    protected $insertMode = 0;
-
+    protected $insert_mode = 0;
     /**
      * Track if we are in an element that allows only inline child nodes.
      *
      * @var string|null
      */
-    protected $onlyInline;
-
+    protected $only_inline;
     /**
      * Quirks mode is enabled by default.
      * Any document that is missing the DT will be considered to be in quirks mode.
      */
     protected $quirks = true;
-
     protected $errors = [];
-
-    public function __construct($isFragment = false, array $options = [])
+    public function __construct($is_fragment = false, array $options = [])
     {
         $this->options = $options;
-
         if (isset($options[self::OPT_TARGET_DOC])) {
             $this->doc = $options[self::OPT_TARGET_DOC];
         } else {
-            $impl = new \DOMImplementation();
+            $impl = new \Dom_Implementation();
             // XXX:
             // Create the doctype. For now, we are always creating HTML5
             // documents, and attempting to up-convert any older DTDs to HTML5.
-            $dt = $impl->createDocumentType('html');
+            $dt = $impl->create_document_type('html');
             // $this->doc = \DOMImplementation::createDocument(NULL, 'html', $dt);
-            $this->doc = $impl->createDocument(null, '', $dt);
+            $this->doc = $impl->create_document(null, '', $dt);
             $this->doc->encoding = !empty($options['encoding']) ? $options['encoding'] : 'UTF-8';
         }
-
         $this->errors = [];
-
-        $this->current = $this->doc; // ->documentElement;
-
+        $this->current = $this->doc;
+        // ->documentElement;
         // Create a rules engine for tags.
-        $this->rules = new TreeBuildingRules();
-
-        $implicitNS = [];
+        $this->rules = new Tree_Building_Rules();
+        $implicit_ns = [];
         if (isset($this->options[self::OPT_IMPLICIT_NS])) {
-            $implicitNS = $this->options[self::OPT_IMPLICIT_NS];
+            $implicit_ns = $this->options[self::OPT_IMPLICIT_NS];
         } elseif (isset($this->options['implicitNamespaces'])) {
-            $implicitNS = $this->options['implicitNamespaces'];
+            $implicit_ns = $this->options['implicitNamespaces'];
         }
-
         // Fill $nsStack with the defalut HTML5 namespaces, plus the "implicitNamespaces" array taken form $options
-        array_unshift($this->nsStack, $implicitNS + ['' => self::NAMESPACE_HTML] + $this->implicitNamespaces);
-
-        if ($isFragment) {
-            $this->insertMode = static::IM_IN_BODY;
-            $this->frag = $this->doc->createDocumentFragment();
+        array_unshift($this->ns_stack, $implicit_ns + ['' => self::NAMESPACE_HTML] + $this->implicit_namespaces);
+        if ($is_fragment) {
+            $this->insert_mode = static::IM_IN_BODY;
+            $this->frag = $this->doc->create_document_fragment();
             $this->current = $this->frag;
         }
     }
-
     /**
      * Get the document.
      */
@@ -212,7 +150,6 @@ class DOMTreeBuilder implements EventHandler
     {
         return $this->doc;
     }
-
     /**
      * Get the DOM fragment for the body.
      *
@@ -227,33 +164,27 @@ class DOMTreeBuilder implements EventHandler
     {
         return $this->frag;
     }
-
     /**
      * Provide an instruction processor.
      *
      * This is used for handling Processor Instructions as they are
      * inserted. If omitted, PI's are inserted directly into the DOM tree.
      */
-    public function setInstructionProcessor(InstructionProcessor $proc)
+    public function set_instruction_processor(Instruction_Processor $proc)
     {
         $this->processor = $proc;
     }
-
-    public function doctype($name, $idType = 0, $id = null, $quirks = false)
+    public function doctype($name, $id_type = 0, $id = null, $quirks = false)
     {
         // This is used solely for setting quirks mode. Currently we don't
         // try to preserve the inbound DT. We convert it to HTML5.
         $this->quirks = $quirks;
-
-        if ($this->insertMode > static::IM_INITIAL) {
-            $this->parseError('Illegal placement of DOCTYPE tag. Ignoring: ' . $name);
-
+        if ($this->insert_mode > static::IM_INITIAL) {
+            $this->parse_error('Illegal placement of DOCTYPE tag. Ignoring: ' . $name);
             return;
         }
-
-        $this->insertMode = static::IM_BEFORE_HTML;
+        $this->insert_mode = static::IM_BEFORE_HTML;
     }
-
     /**
      * Process the start tag.
      *
@@ -267,374 +198,304 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return int
      */
-    public function startTag($name, $attributes = [], $selfClosing = false)
+    public function start_tag($name, $attributes = [], $self_closing = false)
     {
-        $lname = $this->normalizeTagName($name);
-
+        $lname = $this->normalize_tag_name($name);
         // Make sure we have an html element.
-        if (!$this->doc->documentElement && 'html' !== $name && !$this->frag) {
-            $this->startTag('html');
+        if (!$this->doc->document_element && 'html' !== $name && !$this->frag) {
+            $this->start_tag('html');
         }
-
         // Set quirks mode if we're at IM_INITIAL with no doctype.
-        if ($this->insertMode === static::IM_INITIAL) {
+        if ($this->insert_mode === static::IM_INITIAL) {
             $this->quirks = true;
-            $this->parseError('No DOCTYPE specified.');
+            $this->parse_error('No DOCTYPE specified.');
         }
-
         // SPECIAL TAG HANDLING:
         // Spec says do this, and "don't ask."
         // find the spec where this is defined... looks problematic
-        if ('image' === $name && !($this->insertMode === static::IM_IN_SVG || $this->insertMode === static::IM_IN_MATHML)) {
+        if ('image' === $name && !($this->insert_mode === static::IM_IN_SVG || $this->insert_mode === static::IM_IN_MATHML)) {
             $name = 'img';
         }
-
         // Autoclose p tags where appropriate.
-        if ($this->insertMode >= static::IM_IN_BODY && Elements::isA($name, Elements::AUTOCLOSE_P)) {
+        if ($this->insert_mode >= static::IM_IN_BODY && Elements::is_a($name, Elements::AUTOCLOSE_P)) {
             $this->autoclose('p');
         }
-
         // Set insert mode:
         switch ($name) {
             case 'html':
-                $this->insertMode = static::IM_BEFORE_HEAD;
+                $this->insert_mode = static::IM_BEFORE_HEAD;
                 break;
             case 'head':
-                if ($this->insertMode > static::IM_BEFORE_HEAD) {
-                    $this->parseError('Unexpected head tag outside of head context.');
+                if ($this->insert_mode > static::IM_BEFORE_HEAD) {
+                    $this->parse_error('Unexpected head tag outside of head context.');
                 } else {
-                    $this->insertMode = static::IM_IN_HEAD;
+                    $this->insert_mode = static::IM_IN_HEAD;
                 }
                 break;
             case 'body':
-                $this->insertMode = static::IM_IN_BODY;
+                $this->insert_mode = static::IM_IN_BODY;
                 break;
             case 'svg':
-                $this->insertMode = static::IM_IN_SVG;
+                $this->insert_mode = static::IM_IN_SVG;
                 break;
             case 'math':
-                $this->insertMode = static::IM_IN_MATHML;
+                $this->insert_mode = static::IM_IN_MATHML;
                 break;
             case 'noscript':
-                if ($this->insertMode === static::IM_IN_HEAD) {
-                    $this->insertMode = static::IM_IN_HEAD_NOSCRIPT;
+                if ($this->insert_mode === static::IM_IN_HEAD) {
+                    $this->insert_mode = static::IM_IN_HEAD_NOSCRIPT;
                 }
                 break;
         }
-
         // Special case handling for SVG.
-        if ($this->insertMode === static::IM_IN_SVG) {
-            $lname = Elements::normalizeSvgElement($lname);
+        if ($this->insert_mode === static::IM_IN_SVG) {
+            $lname = Elements::normalize_svg_element($lname);
         }
-
         $pushes = 0;
         // when we found a tag thats appears inside $nsRoots, we have to switch the defalut namespace
-        if (isset($this->nsRoots[$lname]) && $this->nsStack[0][''] !== $this->nsRoots[$lname]) {
-            array_unshift($this->nsStack, [
-                '' => $this->nsRoots[$lname],
-            ] + $this->nsStack[0]);
+        if (isset($this->ns_roots[$lname]) && $this->ns_stack[0][''] !== $this->ns_roots[$lname]) {
+            array_unshift($this->ns_stack, ['' => $this->ns_roots[$lname]] + $this->ns_stack[0]);
             ++$pushes;
         }
-        $needsWorkaround = false;
+        $needs_workaround = false;
         if (isset($this->options['xmlNamespaces']) && $this->options['xmlNamespaces']) {
             // when xmlNamespaces is true a and we found a 'xmlns' or 'xmlns:*' attribute, we should add a new item to the $nsStack
-            foreach ($attributes as $aName => $aVal) {
-                if ('xmlns' === $aName) {
-                    $needsWorkaround = $aVal;
-                    array_unshift($this->nsStack, [
-                        '' => $aVal,
-                    ] + $this->nsStack[0]);
+            foreach ($attributes as $a_name => $a_val) {
+                if ('xmlns' === $a_name) {
+                    $needs_workaround = $a_val;
+                    array_unshift($this->ns_stack, ['' => $a_val] + $this->ns_stack[0]);
                     ++$pushes;
-                } elseif ('xmlns' === (($pos = strpos($aName, ':')) ? substr($aName, 0, $pos) : '')) {
-                    array_unshift($this->nsStack, [
-                        substr($aName, $pos + 1) => $aVal,
-                    ] + $this->nsStack[0]);
+                } elseif ('xmlns' === (($pos = strpos($a_name, ':')) ? substr($a_name, 0, $pos) : '')) {
+                    array_unshift($this->ns_stack, [substr($a_name, $pos + 1) => $a_val] + $this->ns_stack[0]);
                     ++$pushes;
                 }
             }
         }
-
-        if ($this->onlyInline && Elements::isA($lname, Elements::BLOCK_TAG)) {
-            $this->autoclose($this->onlyInline);
-            $this->onlyInline = null;
+        if ($this->only_inline && Elements::is_a($lname, Elements::BLOCK_TAG)) {
+            $this->autoclose($this->only_inline);
+            $this->only_inline = null;
         }
-
         // some elements as table related tags might have optional end tags that force us to auto close multiple tags
         // https://www.w3.org/TR/html401/struct/tables.html
-        if ($this->current instanceof \DOMElement && isset(Elements::$optionalEndElementsParentsToClose[$lname])) {
-            foreach (Elements::$optionalEndElementsParentsToClose[$lname] as $parentElName) {
-                if ($this->current instanceof \DOMElement && $this->current->tagName === $parentElName) {
-                    $this->autoclose($parentElName);
+        if ($this->current instanceof \Dom_Element && isset(Elements::$optional_end_elements_parents_to_close[$lname])) {
+            foreach (Elements::$optional_end_elements_parents_to_close[$lname] as $parent_el_name) {
+                if ($this->current instanceof \Dom_Element && $this->current->tag_name === $parent_el_name) {
+                    $this->autoclose($parent_el_name);
                 }
             }
         }
-
         try {
             $prefix = ($pos = strpos($lname, ':')) ? substr($lname, 0, $pos) : '';
-
-            if (false !== $needsWorkaround) {
-                $safeNs = htmlspecialchars((string) $needsWorkaround, ENT_XML1 | ENT_QUOTES, 'UTF-8');
-                $safeNsPrefix = strlen($prefix) && isset($this->nsStack[0][$prefix]) ? htmlspecialchars((string) $this->nsStack[0][$prefix], ENT_XML1 | ENT_QUOTES, 'UTF-8') : null;
-                $xml = "<$lname xmlns=\"$safeNs\" " . ($safeNsPrefix !== null ? ("xmlns:$prefix=\"" . $safeNsPrefix . '"') : '') . '/>';
-
-                $frag = new \DOMDocument('1.0', 'UTF-8');
-                $frag->loadXML($xml);
-
-                $ele = $this->doc->importNode($frag->documentElement, true);
+            if (false !== $needs_workaround) {
+                $safe_ns = htmlspecialchars((string) $needs_workaround, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+                $safe_ns_prefix = strlen($prefix) && isset($this->ns_stack[0][$prefix]) ? htmlspecialchars((string) $this->ns_stack[0][$prefix], ENT_XML1 | ENT_QUOTES, 'UTF-8') : null;
+                $xml = "<{$lname} xmlns=\"{$safe_ns}\" " . ($safe_ns_prefix !== null ? "xmlns:{$prefix}=\"" . $safe_ns_prefix . '"' : '') . '/>';
+                $frag = new \Dom_Document('1.0', 'UTF-8');
+                $frag->load_xml($xml);
+                $ele = $this->doc->import_node($frag->document_element, true);
+            } else if (!isset($this->ns_stack[0][$prefix]) || '' === $prefix && isset($this->options[self::OPT_DISABLE_HTML_NS]) && $this->options[self::OPT_DISABLE_HTML_NS]) {
+                $ele = $this->doc->create_element($lname);
             } else {
-                if (!isset($this->nsStack[0][$prefix]) || ('' === $prefix && isset($this->options[self::OPT_DISABLE_HTML_NS]) && $this->options[self::OPT_DISABLE_HTML_NS])) {
-                    $ele = $this->doc->createElement($lname);
-                } else {
-                    $ele = $this->doc->createElementNS($this->nsStack[0][$prefix], $lname);
-                }
+                $ele = $this->doc->create_element_ns($this->ns_stack[0][$prefix], $lname);
             }
-        } catch (\DOMException $e) {
-            $this->parseError("Illegal tag name: <$lname>. Replaced with <invalid>.");
-            $ele = $this->doc->createElement('invalid');
+        } catch (\Dom_Exception $e) {
+            $this->parse_error("Illegal tag name: <{$lname}>. Replaced with <invalid>.");
+            $ele = $this->doc->create_element('invalid');
         }
-
-        if (Elements::isA($lname, Elements::BLOCK_ONLY_INLINE)) {
-            $this->onlyInline = $lname;
+        if (Elements::is_a($lname, Elements::BLOCK_ONLY_INLINE)) {
+            $this->only_inline = $lname;
         }
-
         // When we add some namespacess, we have to track them. Later, when "endElement" is invoked, we have to remove them.
         // When we are on a void tag, we do not need to care about namesapce nesting.
-        if ($pushes > 0 && !Elements::isA($name, Elements::VOID_TAG)) {
+        if ($pushes > 0 && !Elements::is_a($name, Elements::VOID_TAG)) {
             // PHP tends to free the memory used by DOM,
             // to avoid spl_object_hash collisions whe have to avoid garbage collection of $ele storing it into $pushes
             // see https://bugs.php.net/bug.php?id=67459
             $this->pushes[spl_object_hash($ele)] = [$pushes, $ele];
         }
-
-        foreach ($attributes as $aName => $aVal) {
+        foreach ($attributes as $a_name => $a_val) {
             // xmlns attributes can't be set
-            if ('xmlns' === $aName) {
+            if ('xmlns' === $a_name) {
                 continue;
             }
-
-            if ($this->insertMode === static::IM_IN_SVG) {
-                $aName = Elements::normalizeSvgAttribute($aName);
-            } elseif ($this->insertMode === static::IM_IN_MATHML) {
-                $aName = Elements::normalizeMathMlAttribute($aName);
+            if ($this->insert_mode === static::IM_IN_SVG) {
+                $a_name = Elements::normalize_svg_attribute($a_name);
+            } elseif ($this->insert_mode === static::IM_IN_MATHML) {
+                $a_name = Elements::normalize_math_ml_attribute($a_name);
             }
-
-            $aVal = (string) $aVal;
-
+            $a_val = (string) $a_val;
             try {
-                $prefix = ($pos = strpos($aName, ':')) ? substr($aName, 0, $pos) : false;
-
+                $prefix = ($pos = strpos($a_name, ':')) ? substr($a_name, 0, $pos) : false;
                 if ('xmlns' === $prefix) {
-                    $ele->setAttributeNS(self::NAMESPACE_XMLNS, $aName, $aVal);
-                } elseif (false !== $prefix && isset($this->nsStack[0][$prefix])) {
-                    $ele->setAttributeNS($this->nsStack[0][$prefix], $aName, $aVal);
+                    $ele->set_attribute_ns(self::NAMESPACE_XMLNS, $a_name, $a_val);
+                } elseif (false !== $prefix && isset($this->ns_stack[0][$prefix])) {
+                    $ele->set_attribute_ns($this->ns_stack[0][$prefix], $a_name, $a_val);
                 } else {
-                    $ele->setAttribute($aName, $aVal);
+                    $ele->set_attribute($a_name, $a_val);
                 }
-            } catch (\DOMException $e) {
-                $this->parseError("Illegal attribute name for tag $name. Ignoring: $aName");
+            } catch (\Dom_Exception $e) {
+                $this->parse_error("Illegal attribute name for tag {$name}. Ignoring: {$a_name}");
                 continue;
             }
-
             // This is necessary on a non-DTD schema, like HTML5.
-            if ('id' === $aName) {
-                $ele->setIdAttribute('id', true);
+            if ('id' === $a_name) {
+                $ele->set_id_attribute('id', true);
             }
         }
-
-        if ($this->frag !== $this->current && $this->rules->hasRules($name)) {
+        if ($this->frag !== $this->current && $this->rules->has_rules($name)) {
             // Some elements have special processing rules. Handle those separately.
             $this->current = $this->rules->evaluate($ele, $this->current);
         } else {
             // Otherwise, it's a standard element.
-            $this->current->appendChild($ele);
-
-            if (!Elements::isA($name, Elements::VOID_TAG)) {
+            $this->current->append_child($ele);
+            if (!Elements::is_a($name, Elements::VOID_TAG)) {
                 $this->current = $ele;
             }
-
             // Self-closing tags should only be respected on foreign elements
             // (and are implied on void elements)
             // See: https://www.w3.org/TR/html5/syntax.html#start-tags
-            if (Elements::isHtml5Element($name)) {
-                $selfClosing = false;
+            if (Elements::is_html5element($name)) {
+                $self_closing = false;
             }
         }
-
         // This is sort of a last-ditch attempt to correct for cases where no head/body
         // elements are provided.
-        if ($this->insertMode <= static::IM_BEFORE_HEAD && 'head' !== $name && 'html' !== $name) {
-            $this->insertMode = static::IM_IN_BODY;
+        if ($this->insert_mode <= static::IM_BEFORE_HEAD && 'head' !== $name && 'html' !== $name) {
+            $this->insert_mode = static::IM_IN_BODY;
         }
-
         // When we are on a void tag, we do not need to care about namesapce nesting,
         // but we have to remove the namespaces pushed to $nsStack.
-        if ($pushes > 0 && Elements::isA($name, Elements::VOID_TAG)) {
+        if ($pushes > 0 && Elements::is_a($name, Elements::VOID_TAG)) {
             // remove the namespaced definded by current node
             for ($i = 0; $i < $pushes; ++$i) {
-                array_shift($this->nsStack);
+                array_shift($this->ns_stack);
             }
         }
-
-        if ($selfClosing) {
-            $this->endTag($name);
+        if ($self_closing) {
+            $this->end_tag($name);
         }
-
         // Return the element mask, which the tokenizer can then use to set
         // various processing rules.
         return Elements::element($name);
     }
-
-    public function endTag($name)
+    public function end_tag($name)
     {
-        $lname = $this->normalizeTagName($name);
-
+        $lname = $this->normalize_tag_name($name);
         // Special case within 12.2.6.4.7: An end tag whose tag name is "br" should be treated as an opening tag
         if ('br' === $name) {
-            $this->parseError('Closing tag encountered for void element br.');
-
-            $this->startTag('br');
-        }
-        // Ignore closing tags for other unary elements.
-        elseif (Elements::isA($name, Elements::VOID_TAG)) {
+            $this->parse_error('Closing tag encountered for void element br.');
+            $this->start_tag('br');
+        } elseif (Elements::is_a($name, Elements::VOID_TAG)) {
             return;
         }
-
-        if ($this->insertMode <= static::IM_BEFORE_HTML) {
+        if ($this->insert_mode <= static::IM_BEFORE_HTML) {
             // 8.2.5.4.2
-            if (in_array($name, [
-                'html',
-                'br',
-                'head',
-                'title',
-            ])) {
-                $this->startTag('html');
-                $this->endTag($name);
-                $this->insertMode = static::IM_BEFORE_HEAD;
-
+            if (in_array($name, ['html', 'br', 'head', 'title'])) {
+                $this->start_tag('html');
+                $this->end_tag($name);
+                $this->insert_mode = static::IM_BEFORE_HEAD;
                 return;
             }
-
             // Ignore the tag.
-            $this->parseError('Illegal closing tag at global scope.');
-
+            $this->parse_error('Illegal closing tag at global scope.');
             return;
         }
-
         // Special case handling for SVG.
-        if ($this->insertMode === static::IM_IN_SVG) {
-            $lname = Elements::normalizeSvgElement($lname);
+        if ($this->insert_mode === static::IM_IN_SVG) {
+            $lname = Elements::normalize_svg_element($lname);
         }
-
         $cid = spl_object_hash($this->current);
-
         // XXX: HTML has no parent. What do we do, though,
         // if this element appears in the wrong place?
         if ('html' === $lname) {
             return;
         }
-
         // remove the namespaced definded by current node
         if (isset($this->pushes[$cid])) {
             for ($i = 0; $i < $this->pushes[$cid][0]; ++$i) {
-                array_shift($this->nsStack);
+                array_shift($this->ns_stack);
             }
             unset($this->pushes[$cid]);
         }
-
         if (!$this->autoclose($lname)) {
-            $this->parseError('Could not find closing tag for ' . $lname);
+            $this->parse_error('Could not find closing tag for ' . $lname);
         }
-
         switch ($lname) {
             case 'head':
-                $this->insertMode = static::IM_AFTER_HEAD;
+                $this->insert_mode = static::IM_AFTER_HEAD;
                 break;
             case 'body':
-                $this->insertMode = static::IM_AFTER_BODY;
+                $this->insert_mode = static::IM_AFTER_BODY;
                 break;
             case 'svg':
             case 'mathml':
-                $this->insertMode = static::IM_IN_BODY;
+                $this->insert_mode = static::IM_IN_BODY;
                 break;
         }
     }
-
     public function comment($cdata)
     {
         // TODO: Need to handle case where comment appears outside of the HTML tag.
-        $node = $this->doc->createComment($cdata);
-        $this->current->appendChild($node);
+        $node = $this->doc->create_comment($cdata);
+        $this->current->append_child($node);
     }
-
     public function text($data)
     {
         // XXX: Hmmm.... should we really be this strict?
-        if ($this->insertMode < static::IM_IN_HEAD) {
+        if ($this->insert_mode < static::IM_IN_HEAD) {
             // Per '8.2.5.4.3 The "before head" insertion mode' the characters
             // " \t\n\r\f" should be ignored but no mention of a parse error. This is
             // practical as most documents contain these characters. Other text is not
             // expected here so recording a parse error is necessary.
-            $dataTmp = trim($data, " \t\n\r\f");
-            if (!empty($dataTmp)) {
+            $data_tmp = trim($data, " \t\n\r\f");
+            if (!empty($data_tmp)) {
                 // fprintf(STDOUT, "Unexpected insert mode: %d", $this->insertMode);
-                $this->parseError('Unexpected text. Ignoring: ' . $dataTmp);
+                $this->parse_error('Unexpected text. Ignoring: ' . $data_tmp);
             }
-
             return;
         }
         // fprintf(STDOUT, "Appending text %s.", $data);
-        $node = $this->doc->createTextNode($data);
-        $this->current->appendChild($node);
+        $node = $this->doc->create_text_node($data);
+        $this->current->append_child($node);
     }
-
     public function eof()
     {
         // If the $current isn't the $root, do we need to do anything?
     }
-
-    public function parseError($msg, $line = 0, $col = 0)
+    public function parse_error($msg, $line = 0, $col = 0)
     {
         $this->errors[] = sprintf('Line %d, Col %d: %s', $line, $col, $msg);
     }
-
-    public function getErrors()
+    public function get_errors()
     {
         return $this->errors;
     }
-
     public function cdata($data)
     {
-        $node = $this->doc->createCDATASection($data);
-        $this->current->appendChild($node);
+        $node = $this->doc->create_cdata_section($data);
+        $this->current->append_child($node);
     }
-
-    public function processingInstruction($name, $data = null)
+    public function processing_instruction($name, $data = null)
     {
         // XXX: Ignore initial XML declaration, per the spec.
-        if ($this->insertMode === static::IM_INITIAL && 'xml' === strtolower($name)) {
+        if ($this->insert_mode === static::IM_INITIAL && 'xml' === strtolower($name)) {
             return;
         }
-
         // Important: The processor may modify the current DOM tree however it sees fit.
-        if ($this->processor instanceof InstructionProcessor) {
+        if ($this->processor instanceof Instruction_Processor) {
             $res = $this->processor->process($this->current, $name, $data);
             if (!empty($res)) {
                 $this->current = $res;
             }
-
             return;
         }
-
         // Otherwise, this is just a dumb PI element.
-        $node = $this->doc->createProcessingInstruction($name, $data);
-
-        $this->current->appendChild($node);
+        $node = $this->doc->create_processing_instruction($name, $data);
+        $this->current->append_child($node);
     }
-
     // ==========================================================================
     // UTILITIES
     // ==========================================================================
-
     /**
      * Apply normalization rules to a tag name.
      * See sections 2.9 and 8.1.2.
@@ -643,19 +504,17 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return string The normalized tag name.
      */
-    protected function normalizeTagName($tagName)
+    protected function normalize_tag_name($tag_name)
     {
         /*
          * Section 2.9 suggests that we should not do this. if (strpos($name, ':') !== false) { // We know from the grammar that there must be at least one other // char besides :, since : is not a legal tag start. $parts = explode(':', $name); return array_pop($parts); }
          */
-        return $tagName;
+        return $tag_name;
     }
-
-    protected function quirksTreeResolver($name)
+    protected function quirks_tree_resolver($name)
     {
         throw new \Exception('Not implemented.');
     }
-
     /**
      * Automatically climb the tree and close the closest node with the matching $tag.
      *
@@ -663,23 +522,20 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return bool
      */
-    protected function autoclose($tagName)
+    protected function autoclose($tag_name)
     {
         $working = $this->current;
         do {
-            if (XML_ELEMENT_NODE !== $working->nodeType) {
+            if (XML_ELEMENT_NODE !== $working->node_type) {
                 return false;
             }
-            if ($working->tagName === $tagName) {
-                $this->current = $working->parentNode;
-
+            if ($working->tag_name === $tag_name) {
+                $this->current = $working->parent_node;
                 return true;
             }
-        } while ($working = $working->parentNode);
-
+        } while ($working = $working->parent_node);
         return false;
     }
-
     /**
      * Checks if the given tagname is an ancestor of the present candidate.
      *
@@ -690,19 +546,17 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return bool
      */
-    protected function isAncestor($tagName)
+    protected function is_ancestor($tag_name)
     {
         $candidate = $this->current;
-        while (XML_ELEMENT_NODE === $candidate->nodeType) {
-            if ($candidate->tagName === $tagName) {
+        while (XML_ELEMENT_NODE === $candidate->node_type) {
+            if ($candidate->tag_name === $tag_name) {
                 return true;
             }
-            $candidate = $candidate->parentNode;
+            $candidate = $candidate->parent_node;
         }
-
         return false;
     }
-
     /**
      * Returns true if the immediate parent element is of the given tagname.
      *
@@ -710,8 +564,8 @@ class DOMTreeBuilder implements EventHandler
      *
      * @return bool
      */
-    protected function isParent($tagName)
+    protected function is_parent($tag_name)
     {
-        return $this->current->tagName === $tagName;
+        return $this->current->tag_name === $tag_name;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /**
@@ -21,14 +20,11 @@ namespace Masterminds\HTML5\Parser;
  *
  * See HTML5 spec section 8.2.4
  */
-interface EventHandler
+interface Event_Handler
 {
     public const DOCTYPE_NONE = 0;
-
     public const DOCTYPE_PUBLIC = 1;
-
     public const DOCTYPE_SYSTEM = 2;
-
     /**
      * A doctype declaration.
      *
@@ -38,8 +34,7 @@ interface EventHandler
      *                       then this is a system ID.
      * @param bool   $quirks Indicates whether the builder should enter quirks mode.
      */
-    public function doctype($name, $idType = 0, $id = null, $quirks = false);
-
+    public function doctype($name, $id_type = 0, $id = null, $quirks = false);
     /**
      * A start tag.
      *
@@ -67,35 +62,29 @@ interface EventHandler
      *
      * @return int one of the Tokenizer::TEXTMODE_* constants
      */
-    public function startTag($name, $attributes = [], $selfClosing = false);
-
+    public function start_tag($name, $attributes = [], $self_closing = false);
     /**
      * An end-tag.
      */
-    public function endTag($name);
-
+    public function end_tag($name);
     /**
      * A comment section (unparsed character data).
      */
     public function comment($cdata);
-
     /**
      * A unit of parsed character data.
      *
      * Entities in this text are *already decoded*.
      */
     public function text($cdata);
-
     /**
      * Indicates that the document has been entirely processed.
      */
     public function eof();
-
     /**
      * Emitted when the parser encounters an error condition.
      */
-    public function parseError($msg, $line, $col);
-
+    public function parse_error($msg, $line, $col);
     /**
      * A CDATA section.
      *
@@ -103,7 +92,6 @@ interface EventHandler
      *                     The unparsed character data
      */
     public function cdata($data);
-
     /**
      * This is a holdover from the XML spec.
      *
@@ -112,5 +100,5 @@ interface EventHandler
      * @param string $name The name of the processor (e.g. 'php').
      * @param string $data The unparsed data.
      */
-    public function processingInstruction($name, $data = null);
+    public function processing_instruction($name, $data = null);
 }
