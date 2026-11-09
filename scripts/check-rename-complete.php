@@ -5,7 +5,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 
 /** @var list<string> */
-$scanPaths = [
+$scanPhpPaths = [
     $root . '/src',
     $root . '/test',
     $root . '/bin',
@@ -14,11 +14,19 @@ $scanPaths = [
 ];
 
 /** @var list<string> */
+$scanDocPaths = [
+    $root . '/README.md',
+    $root . '/ARCHITECTURE.md',
+];
+
+/** @var list<string> */
 $forbiddenPatterns = [
     'InstructionProcessor',
     'CharacterReference',
     'DOMTreeBuilder',
     'Dom_Tree_Builder',
+    'DOMTree',
+    'DOMBuilder',
     'EventHandler',
     'FileInputStream',
     'InputStream',
@@ -33,6 +41,7 @@ $forbiddenPatterns = [
     'DOMTreeBuilderTest',
     'EventStack',
     'EventStackError',
+    'Event_StackError',
     'InstructionProcessorMock',
     'ScannerTest',
     'TokenizerTest',
@@ -64,6 +73,7 @@ $forbiddenPatterns = [
     'html5->saveHTML',
     'function loadHTML',
     'function saveHTML',
+    'HTML5::saveHTML',
     '\\Dom_Element',
     '\\Dom_Document',
     '\\Dom_Document_Fragment',
@@ -133,15 +143,11 @@ function php_files_to_scan(array $scanPaths): iterable
     }
 }
 
-foreach (php_files_to_scan($scanPaths) as $file) {
-    $contents = file_get_contents($file);
-    if ($contents === false) {
-        $failures[] = "Could not read {$file}";
-        continue;
-    }
-
-    $relative = str_starts_with($file, $root) ? substr($file, strlen($root) + 1) : $file;
-
+/**
+ * @param list<string> $failures
+ */
+function scan_for_forbidden_names(string $relative, string $contents, array $forbiddenPatterns, bool $checkPhpTestCaseRules, array &$failures): void
+{
     foreach ($forbiddenPatterns as $pattern) {
         $matched = false;
         if (str_starts_with($pattern, '->') || str_contains($pattern, '::')) {
@@ -169,6 +175,10 @@ foreach (php_files_to_scan($scanPaths) as $file) {
         $failures[] = "{$relative}: forbidden '{$pattern}'";
     }
 
+    if (!$checkPhpTestCaseRules) {
+        return;
+    }
+
     if (preg_match('/\bclass\s+TestCase\b/', $contents) && strpos($contents, 'PHPUnit\\Framework\\TestCase') === false) {
         $failures[] = "{$relative}: repo-owned class TestCase (expected Test_Case)";
     }
@@ -177,6 +187,31 @@ foreach (php_files_to_scan($scanPaths) as $file) {
             $failures[] = "{$relative}: extends TestCase without BaseTestCase";
         }
     }
+}
+
+foreach (php_files_to_scan($scanPhpPaths) as $file) {
+    $contents = file_get_contents($file);
+    if ($contents === false) {
+        $failures[] = "Could not read {$file}";
+        continue;
+    }
+
+    $relative = str_starts_with($file, $root) ? substr($file, strlen($root) + 1) : $file;
+    scan_for_forbidden_names($relative, $contents, $forbiddenPatterns, true, $failures);
+}
+
+foreach ($scanDocPaths as $docPath) {
+    if (!is_readable($docPath)) {
+        $failures[] = "Could not read {$docPath}";
+        continue;
+    }
+    $contents = file_get_contents($docPath);
+    if ($contents === false) {
+        $failures[] = "Could not read {$docPath}";
+        continue;
+    }
+    $relative = str_starts_with($docPath, $root) ? substr($docPath, strlen($root) + 1) : $docPath;
+    scan_for_forbidden_names($relative, $contents, $forbiddenPatterns, false, $failures);
 }
 
 if ($failures !== []) {

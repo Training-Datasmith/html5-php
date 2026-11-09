@@ -10,9 +10,9 @@ fail_deprecation_output() {
     local stripped
     stripped="$(mktemp)"
     sed -E 's/\x1b\[[0-9;]*[[:alpha:]]//g' "${file}" >"${stripped}"
-    if grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
+    if grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >/dev/null; then
         echo "${label}: output contains Warning, Deprecated, or Notice" >&2
-        grep -E '(^|[[:space:]])(PHP[[:space:]]+)?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
+        grep -E '^(PHP )?(Warning|Deprecated|Notice):' "${stripped}" >&2 || true
         rm -f "${stripped}"
         exit 1
     fi
@@ -53,7 +53,23 @@ if [[ ${composer_status} -ne 0 ]]; then
 fi
 rm -f "${composer_out}"
 
-php scripts/check-cluster-pins.php
+pins_out="$(mktemp)"
+set +e
+php scripts/check-cluster-pins.php >"${pins_out}" 2>&1
+pins_status=$?
+set -e
+cat "${pins_out}"
+fail_deprecation_output "check-cluster-pins" "${pins_out}"
+if [[ ${pins_status} -ne 0 ]]; then
+    rm -f "${pins_out}"
+    exit "${pins_status}"
+fi
+if ! grep -Fxq 'check-cluster-pins: all cluster packages match expected SHAs and aliases.' "${pins_out}"; then
+    echo 'check-cluster-pins: missing exact success line' >&2
+    rm -f "${pins_out}"
+    exit 1
+fi
+rm -f "${pins_out}"
 
 audit_out="$(mktemp)"
 set +e
@@ -71,7 +87,23 @@ if ! grep -Fxq 'No security vulnerability advisories found.' "${audit_out}"; the
 fi
 rm -f "${audit_out}"
 
-php scripts/check-rename-complete.php
+rename_out="$(mktemp)"
+set +e
+php scripts/check-rename-complete.php >"${rename_out}" 2>&1
+rename_status=$?
+set -e
+cat "${rename_out}"
+fail_deprecation_output "check-rename-complete" "${rename_out}"
+if [[ ${rename_status} -ne 0 ]]; then
+    rm -f "${rename_out}"
+    exit "${rename_status}"
+fi
+if ! grep -Fxq 'check-rename-complete: no pre-rename repo-owned names remain.' "${rename_out}"; then
+    echo 'check-rename-complete: missing exact success line' >&2
+    rm -f "${rename_out}"
+    exit 1
+fi
+rm -f "${rename_out}"
 
 phpunit_out="$(mktemp)"
 set +e

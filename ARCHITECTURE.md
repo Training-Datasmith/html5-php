@@ -56,7 +56,7 @@ HTML5::parse($input)
   │         └─ Character_Reference (entity decoding)
   └─ returns DOMDocument
 
-HTML5::saveHTML($dom)
+HTML5::save_html($dom)
   └─ Serializer\Traverser
        └─ Output_Rules → HTML5 string
 ```

@@ -146,10 +146,10 @@ The parser is designed as follows:
 
 - The `Scanner` handles scanning on behalf of the parser.
 - The `Tokenizer` requests data off of the scanner, parses it, clasifies
-it, and sends it to an `EventHandler`. It is a *recursive descent parser.*
-- The `EventHandler` receives notifications and data for each specific
+it, and sends it to an `Event_Handler`. It is a *recursive descent parser.*
+- The `Event_Handler` receives notifications and data for each specific
 semantic event that occurs during tokenization.
-- The `DOMBuilder` is an `EventHandler` that listens for tokenizing
+- The `DOM_Tree_Builder` is an `Event_Handler` that listens for tokenizing
 events and builds a document tree (`DOMDocument`) based on the events.
 
 ### Serializer Design
@@ -159,11 +159,11 @@ it into a character representation -- an HTML5 document.
 
 The serializer is broken into three parts:
 
-- The `OutputRules` contain the rules to turn DOM elements into strings. The
-rules are an implementation of the interface `RulesInterface` allowing for
+- The `Output_Rules` contain the rules to turn DOM elements into strings. The
+rules are an implementation of the interface `Rules_Interface` allowing for
 different rule sets to be used.
 - The `Traverser`, which is a special-purpose tree walker. It visits
-each node node in the tree and uses the `OutputRules` to transform the node
+each node node in the tree and uses the `Output_Rules` to transform the node
 into a string.
 - `HTML5` manages the `Traverser` and stores the resultant data
 in the correct place.
@@ -194,7 +194,7 @@ issues known issues that are not presently on the roadmap:
 - Validation: The current tree builder is **not** a validating parser.
   While it will correct some HTML, it does not check that the HTML
   conforms to the standard. (Should you wish, you can build a validating
-  parser by extending DOMTree or building your own EventHandler
+  parser by extending `DOM_Tree_Builder` or building your own `Event_Handler`
   implementation.)
   * There is limited support for insertion modes.
   * Some autocorrection is done automatically.
