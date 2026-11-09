@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Masterminds\HTML5\Tests\Serializer;
 
-use Masterminds\HTML5\Serializer\OutputRules;
+use Masterminds\HTML5\Serializer\Output_Rules;
 use Masterminds\HTML5\Serializer\Traverser;
 
-class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
+class Traverser_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     protected $markup = '<!doctype html>
     <html lang="en">
@@ -49,8 +49,8 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
     {
         $stream = fopen('php://temp', 'w');
 
-        $dom = $this->html5->loadHTML($this->markup);
-        $t = new Traverser($dom, $stream, $html5->getOptions());
+        $dom = $this->html5->load_html($this->markup);
+        $t = new Traverser($dom, $stream, $this->html5->get_options());
 
         // We return both the traverser and stream so we can pull from it.
         return [
@@ -67,10 +67,10 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
 
         $html5 = $this->getInstance();
 
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $dom = $this->html5->loadHTML($this->markup);
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $dom = $this->html5->load_html($this->markup);
 
-        $t = new Traverser($dom, $stream, $r, $html5->getOptions());
+        $t = new Traverser($dom, $stream, $r, $html5->get_options());
 
         $this->assertInstanceOf('\Masterminds\HTML5\Serializer\Traverser', $t);
     }
@@ -78,14 +78,14 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
     public function testFragmentDeprecated()
     {
         $html = '<span class="bar">foo</span><span></span><div>bar</div>';
-        $input = new \Masterminds\HTML5\Parser\StringInputStream($html);
-        $dom = $this->html5->parseFragment($input);
+        $input = new \Masterminds\HTML5\Parser\String_Input_Stream($html);
+        $dom = $this->html5->parse_fragment($input);
 
         $this->assertInstanceOf('\DOMDocumentFragment', $dom);
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
         $t->walk();
 
         $this->assertEquals($html, stream_get_contents($stream, -1, 0));
@@ -94,13 +94,13 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
     public function testFragment()
     {
         $html = '<span class="bar">foo</span><span></span><div>bar</div>';
-        $dom = $this->html5->parseFragment($html);
+        $dom = $this->html5->parse_fragment($html);
 
         $this->assertInstanceOf('\DOMDocumentFragment', $dom);
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
         $t->walk();
 
         $this->assertEquals($html, stream_get_contents($stream, -1, 0));
@@ -109,15 +109,15 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
     public function testProcessorInstructionDeprecated()
     {
         $html = '<?foo bar ?>';
-        $input = new \Masterminds\HTML5\Parser\StringInputStream($html);
-        $dom = $this->html5->parseFragment($input);
+        $input = new \Masterminds\HTML5\Parser\String_Input_Stream($html);
+        $dom = $this->html5->parse_fragment($input);
 
         $this->assertInstanceOf('\DOMDocumentFragment', $dom);
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
 
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
         $t->walk();
 
         $this->assertEquals($html, stream_get_contents($stream, -1, 0));
@@ -126,14 +126,14 @@ class TraverserTest extends \Masterminds\HTML5\Tests\TestCase
     public function testProcessorInstruction()
     {
         $html = '<?foo bar ?>';
-        $dom = $this->html5->parseFragment($html);
+        $dom = $this->html5->parse_fragment($html);
 
         $this->assertInstanceOf('\DOMDocumentFragment', $dom);
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
 
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
         $t->walk();
 
         $this->assertEquals($html, stream_get_contents($stream, -1, 0));

@@ -56,7 +56,7 @@ class String_Input_Stream implements Input_Stream
      */
     public $errors = [];
     /**
-     * Create a new InputStream wrapper.
+     * Create a new input stream wrapper.
      *
      * @param string $data     Data to parse.
      * @param string $encoding The encoding to use for the data.
@@ -156,7 +156,7 @@ class String_Input_Stream implements Input_Stream
      *
      * @return string The current character.
      */
-    #[\Return_Type_Will_Change]
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->data[$this->char];
@@ -165,7 +165,7 @@ class String_Input_Stream implements Input_Stream
      * Advance the pointer.
      * This is part of the Iterator interface.
      */
-    #[\Return_Type_Will_Change]
+    #[\ReturnTypeWillChange]
     public function next()
     {
         ++$this->char;
@@ -173,7 +173,7 @@ class String_Input_Stream implements Input_Stream
     /**
      * Rewind to the start of the string.
      */
-    #[\Return_Type_Will_Change]
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->char = 0;
@@ -183,7 +183,7 @@ class String_Input_Stream implements Input_Stream
      *
      * @return bool Whether the current pointer location is valid.
      */
-    #[\Return_Type_Will_Change]
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return $this->char < $this->EOF;
@@ -196,7 +196,7 @@ class String_Input_Stream implements Input_Stream
      *
      * Note this performs bounds checking.
      *
-     * @return string Returns the remaining text. If called when the InputStream is
+     * @return string Returns the remaining text. If called when the input stream is
      *                already exhausted, it returns an empty string.
      */
     public function remaining_chars()
@@ -285,7 +285,7 @@ class String_Input_Stream implements Input_Stream
         }
         return false;
     }
-    #[\Return_Type_Will_Change]
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->char;

@@ -11,7 +11,7 @@ namespace Masterminds\HTML5\Parser;
  * of the HTML5 specification.
  *
  * An event handler receives parser events. For a concrete
- * implementation, see DOMTreeBuilder.
+ * implementation, see DOM_Tree_Builder.
  *
  * Quirks support in the parser is limited to close-in syntax (malformed
  * tags or attributes). Higher order syntax and semantic issues with a

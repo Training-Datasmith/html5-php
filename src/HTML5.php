@@ -3,7 +3,7 @@
 declare (strict_types=1);
 namespace Masterminds;
 
-use Masterminds\HTML5\Parser\Dom_Tree_Builder;
+use Masterminds\HTML5\Parser\DOM_Tree_Builder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 use Masterminds\HTML5\Serializer\Output_Rules;
@@ -141,9 +141,9 @@ class HTML5
     {
         $this->errors = [];
         $options = array_merge($this->default_options, $options);
-        $events = new Dom_Tree_Builder(false, $options);
+        $events = new DOM_Tree_Builder(false, $options);
         $scanner = new Scanner($input, !empty($options['encoding']) ? $options['encoding'] : 'UTF-8');
-        $parser = new Tokenizer($scanner, $events, !empty($options['xmlNamespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
+        $parser = new Tokenizer($scanner, $events, !empty($options['xml_namespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
         $parser->parse();
         $this->errors = $events->get_errors();
         return $events->document();
@@ -162,9 +162,9 @@ class HTML5
     public function parse_fragment($input, array $options = [])
     {
         $options = array_merge($this->default_options, $options);
-        $events = new Dom_Tree_Builder(true, $options);
+        $events = new DOM_Tree_Builder(true, $options);
         $scanner = new Scanner($input, !empty($options['encoding']) ? $options['encoding'] : 'UTF-8');
-        $parser = new Tokenizer($scanner, $events, !empty($options['xmlNamespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
+        $parser = new Tokenizer($scanner, $events, !empty($options['xml_namespaces']) ? Tokenizer::CONFORMANT_XML : Tokenizer::CONFORMANT_HTML);
         $parser->parse();
         $this->errors = $events->get_errors();
         return $events->fragment();

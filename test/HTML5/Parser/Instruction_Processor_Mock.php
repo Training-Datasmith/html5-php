@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Masterminds\HTML5\Tests\Parser;
 
-class InstructionProcessorMock implements \Masterminds\HTML5\InstructionProcessor
+class Instruction_Processor_Mock implements \Masterminds\HTML5\Instruction_Processor
 {
     public $name = null;
 

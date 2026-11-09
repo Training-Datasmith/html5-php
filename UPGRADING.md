@@ -6,8 +6,8 @@ From 1.x to 2.x
 
     Before:
     
-        $dom = \HTML5::loadHTML('<html>....');
-        \HTML5::saveHTML($dom);
+        $dom = \HTML5::load_html('<html>....');
+        \HTML5::save_html($dom);
         
     After:
 
@@ -15,7 +15,7 @@ From 1.x to 2.x
         
         $html5 = new HTML5();
         
-        $dom = $html5->loadHTML('<html>....');
-        echo $html5->saveHTML($dom);
+        $dom = $html5->load_html('<html>....');
+        echo $html5->save_html($dom);
 
 

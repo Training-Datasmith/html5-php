@@ -85,8 +85,8 @@ class Output_Rules implements Rules_Interface
     public function document($dom)
     {
         $this->doctype();
-        if ($dom->document_element) {
-            foreach ($dom->child_nodes as $node) {
+        if ($dom->documentElement) {
+            foreach ($dom->childNodes as $node) {
                 $this->traverser->node($node);
             }
             $this->nl();
@@ -102,12 +102,12 @@ class Output_Rules implements Rules_Interface
      */
     public function element($ele)
     {
-        $name = $ele->tag_name;
+        $name = $ele->tagName;
         // Per spec:
         // If the element has a declared namespace in the HTML, MathML or
         // SVG namespaces, we use the lname instead of the tagName.
         if ($this->traverser->is_local_element($ele)) {
-            $name = $ele->local_name;
+            $name = $ele->localName;
         }
         // If we are in SVG or MathML there is special handling.
         // Using if/elseif instead of switch because it's faster in PHP.
@@ -119,19 +119,19 @@ class Output_Rules implements Rules_Interface
         }
         $this->open_tag($ele);
         // The tag is already self-closed (`<svg />` or `<math />`) in `openTag` if there are no child nodes.
-        $handled_as_void_tag = $this->output_mode !== static::IM_IN_HTML && !$ele->has_child_nodes();
+        $handled_as_void_tag = $this->output_mode !== static::IM_IN_HTML && !$ele->hasChildNodes();
         if (Elements::is_a($name, Elements::TEXT_RAW)) {
-            foreach ($ele->child_nodes as $child) {
-                if ($child instanceof \Dom_Character_Data) {
+            foreach ($ele->childNodes as $child) {
+                if ($child instanceof \DOMCharacterData) {
                     $this->wr($child->data);
-                } elseif ($child instanceof \Dom_Element) {
+                } elseif ($child instanceof \DOMElement) {
                     $this->element($child);
                 }
             }
         } else {
             // Handle children.
-            if ($ele->has_child_nodes()) {
-                $this->traverser->children($ele->child_nodes);
+            if ($ele->hasChildNodes()) {
+                $this->traverser->children($ele->childNodes);
             }
             // Close out the SVG or MathML special handling.
             if ('svg' == $name || 'math' == $name) {
@@ -150,7 +150,7 @@ class Output_Rules implements Rules_Interface
      */
     public function text($ele)
     {
-        if (isset($ele->parent_node) && isset($ele->parent_node->tag_name) && Elements::is_a($ele->parent_node->local_name, Elements::TEXT_RAW)) {
+        if (isset($ele->parentNode) && isset($ele->parentNode->tagName) && Elements::is_a($ele->parentNode->localName, Elements::TEXT_RAW)) {
             $this->wr($ele->data);
             return;
         }
@@ -160,13 +160,13 @@ class Output_Rules implements Rules_Interface
     public function cdata($ele)
     {
         // This encodes CDATA.
-        $this->wr($ele->owner_document->save_xml($ele));
+        $this->wr($ele->ownerDocument->saveXML($ele));
     }
     public function comment($ele)
     {
         // These produce identical output.
         // $this->wr('<!--')->wr($ele->data)->wr('-->');
-        $this->wr($ele->owner_document->save_xml($ele));
+        $this->wr($ele->ownerDocument->saveXML($ele));
     }
     public function processor_instruction($ele)
     {
@@ -179,12 +179,12 @@ class Output_Rules implements Rules_Interface
      */
     protected function namespace_attrs($ele)
     {
-        if (!$this->xpath || $this->xpath->document !== $ele->owner_document) {
-            $this->xpath = new \Domx_Path($ele->owner_document);
+        if (!$this->xpath || $this->xpath->document !== $ele->ownerDocument) {
+            $this->xpath = new \DOMXPath($ele->ownerDocument);
         }
         foreach ($this->xpath->query('namespace::*[not(.=../../namespace::*)]', $ele) as $ns_node) {
-            if (!in_array($ns_node->node_value, $this->implicit_namespaces)) {
-                $this->wr(' ')->wr($ns_node->node_name)->wr('="')->wr($ns_node->node_value)->wr('"');
+            if (!in_array($ns_node->nodeValue, $this->implicit_namespaces)) {
+                $this->wr(' ')->wr($ns_node->nodeName)->wr('="')->wr($ns_node->nodeValue)->wr('"');
             }
         }
     }
@@ -198,12 +198,12 @@ class Output_Rules implements Rules_Interface
      */
     protected function open_tag($ele)
     {
-        $this->wr('<')->wr($this->traverser->is_local_element($ele) ? $ele->local_name : $ele->tag_name);
+        $this->wr('<')->wr($this->traverser->is_local_element($ele) ? $ele->localName : $ele->tagName);
         $this->attrs($ele);
         $this->namespace_attrs($ele);
         if ($this->output_mode == static::IM_IN_HTML) {
             $this->wr('>');
-        } else if ($ele->has_child_nodes()) {
+        } else if ($ele->hasChildNodes()) {
             $this->wr('>');
         } else {
             $this->wr(' />');
@@ -212,7 +212,7 @@ class Output_Rules implements Rules_Interface
     protected function attrs($ele)
     {
         // FIXME: Needs support for xml, xmlns, xlink, and namespaced elements.
-        if (!$ele->has_attributes()) {
+        if (!$ele->hasAttributes()) {
             return $this;
         }
         // TODO: Currently, this always writes name="value", and does not do
@@ -226,7 +226,7 @@ class Output_Rules implements Rules_Interface
             // the XML, XMLNS, or XLink NS's should use the canonical
             // prefix. It seems that DOM does this for us already, but there
             // may be exceptions.
-            $name = $node->node_name;
+            $name = $node->nodeName;
             // Special handling for attributes in SVG and MathML.
             // Using if/elseif instead of switch because it's faster in PHP.
             if ($this->output_mode == static::IM_IN_SVG) {
@@ -240,26 +240,26 @@ class Output_Rules implements Rules_Interface
             }
         }
     }
-    protected function non_boolean_attribute(\Dom_Attr $attr)
+    protected function non_boolean_attribute(\DOMAttr $attr)
     {
-        $ele = $attr->owner_element;
+        $ele = $attr->ownerElement;
         foreach ($this->non_boolean_attributes as $rule) {
-            if (isset($rule['nodeNamespace']) && $rule['nodeNamespace'] !== $ele->namespace_uri) {
+            if (isset($rule['nodeNamespace']) && $rule['nodeNamespace'] !== $ele->namespaceURI) {
                 continue;
             }
-            if (isset($rule['attNamespace']) && $rule['attNamespace'] !== $attr->namespace_uri) {
+            if (isset($rule['attNamespace']) && $rule['attNamespace'] !== $attr->namespaceURI) {
                 continue;
             }
-            if (isset($rule['nodeName']) && !is_array($rule['nodeName']) && $rule['nodeName'] !== $ele->local_name) {
+            if (isset($rule['nodeName']) && !is_array($rule['nodeName']) && $rule['nodeName'] !== $ele->localName) {
                 continue;
             }
-            if (isset($rule['nodeName']) && is_array($rule['nodeName']) && !in_array($ele->local_name, $rule['nodeName'], true)) {
+            if (isset($rule['nodeName']) && is_array($rule['nodeName']) && !in_array($ele->localName, $rule['nodeName'], true)) {
                 continue;
             }
-            if (isset($rule['attrName']) && !is_array($rule['attrName']) && $rule['attrName'] !== $attr->local_name) {
+            if (isset($rule['attrName']) && !is_array($rule['attrName']) && $rule['attrName'] !== $attr->localName) {
                 continue;
             }
-            if (isset($rule['attrName']) && is_array($rule['attrName']) && !in_array($attr->local_name, $rule['attrName'], true)) {
+            if (isset($rule['attrName']) && is_array($rule['attrName']) && !in_array($attr->localName, $rule['attrName'], true)) {
                 continue;
             }
             if (isset($rule['xpath'])) {
@@ -277,10 +277,10 @@ class Output_Rules implements Rules_Interface
         }
         return false;
     }
-    private function get_x_path(\Dom_Node $node)
+    private function get_x_path(\DOMNode $node)
     {
         if (!$this->xpath) {
-            $this->xpath = new \Domx_Path($node->owner_document);
+            $this->xpath = new \DOMXPath($node->ownerDocument);
         }
         return $this->xpath;
     }
@@ -294,8 +294,8 @@ class Output_Rules implements Rules_Interface
      */
     protected function close_tag($ele)
     {
-        if ($this->output_mode == static::IM_IN_HTML || $ele->has_child_nodes()) {
-            $this->wr('</')->wr($this->traverser->is_local_element($ele) ? $ele->local_name : $ele->tag_name)->wr('>');
+        if ($this->output_mode == static::IM_IN_HTML || $ele->hasChildNodes()) {
+            $this->wr('</')->wr($this->traverser->is_local_element($ele) ? $ele->localName : $ele->tagName)->wr('>');
         }
     }
     /**

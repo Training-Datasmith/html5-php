@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Masterminds\HTML5\Tests\Parser;
 
 use Masterminds\HTML5\Elements;
-use Masterminds\HTML5\Parser\EventHandler;
+use Masterminds\HTML5\Parser\Event_Handler;
 
 /**
  * This testing class gathers events from a parser and builds a stack of events.
@@ -17,7 +17,7 @@ use Masterminds\HTML5\Parser\EventHandler;
  * script or pre tags. This is to match the behavior required by the HTML5 spec,
  * which says that the tree builder must tell the tokenizer when to switch states.
  */
-class EventStack implements EventHandler
+class Event_Stack implements Event_Handler
 {
     protected $stack;
 
@@ -63,7 +63,7 @@ class EventStack implements EventHandler
         $this->store('doctype', $args);
     }
 
-    public function startTag($name, $attributes = [], $selfClosing = false)
+    public function start_tag($name, $attributes = [], $self_closing = false)
     {
         $args = func_get_args();
         $this->store('startTag', $args);
@@ -72,7 +72,7 @@ class EventStack implements EventHandler
         }
     }
 
-    public function endTag($name)
+    public function end_tag($name)
     {
         $this->store('endTag', [
             $name,
@@ -104,14 +104,14 @@ class EventStack implements EventHandler
         $this->store('eof');
     }
 
-    public function parseError($msg, $line, $col)
+    public function parse_error($msg, $line, $col)
     {
-        // throw new EventStackParseError(sprintf("%s (line %d, col %d)", $msg, $line, $col));
+        // throw new Event_Stack_Error(sprintf("%s (line %d, col %d)", $msg, $line, $col));
         // $this->store(sprintf("%s (line %d, col %d)", $msg, $line, $col));
         $this->store('error', func_get_args());
     }
 
-    public function processingInstruction($name, $data = null)
+    public function processing_instruction($name, $data = null)
     {
         $this->store('pi', func_get_args());
     }

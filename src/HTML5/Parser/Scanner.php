@@ -39,7 +39,7 @@ class Scanner
     public function __construct($data, $encoding = 'UTF-8')
     {
         if ($data instanceof Input_Stream) {
-            @trigger_error('InputStream objects are deprecated since version 2.4 and will be removed in 3.0. Use strings instead.', E_USER_DEPRECATED);
+            @trigger_error('Input_Stream objects are deprecated since version 2.4 and will be removed in 3.0. Use strings instead.', E_USER_DEPRECATED);
             $data = (string) $data;
         }
         $data = UTF8Utils::convert_to_utf8($data, $encoding);

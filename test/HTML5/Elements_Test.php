@@ -6,7 +6,7 @@ namespace Masterminds\HTML5\Tests;
 
 use Masterminds\HTML5\Elements;
 
-class ElementsTest extends TestCase
+class Elements_Test extends Test_Case
 {
     public $html5Elements = [
         'a',
@@ -249,9 +249,9 @@ class ElementsTest extends TestCase
     public function testIsHtml5Element()
     {
         foreach ($this->html5Elements as $element) {
-            $this->assertTrue(Elements::isHtml5Element($element), 'html5 element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_html5_element($element), 'html5 element test failed on: ' . $element);
 
-            $this->assertTrue(Elements::isHtml5Element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
+            $this->assertTrue(Elements::is_html5_element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
         }
 
         $nonhtml5 = [
@@ -260,19 +260,19 @@ class ElementsTest extends TestCase
             'baz',
         ];
         foreach ($nonhtml5 as $element) {
-            $this->assertFalse(Elements::isHtml5Element($element), 'html5 element test failed on: ' . $element);
+            $this->assertFalse(Elements::is_html5_element($element), 'html5 element test failed on: ' . $element);
 
-            $this->assertFalse(Elements::isHtml5Element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
+            $this->assertFalse(Elements::is_html5_element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
         }
     }
 
     public function testIsMathMLElement()
     {
         foreach ($this->mathmlElements as $element) {
-            $this->assertTrue(Elements::isMathMLElement($element), 'MathML element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_math_ml_element($element), 'MathML element test failed on: ' . $element);
 
             // MathML is case sensitive so these should all fail.
-            $this->assertFalse(Elements::isMathMLElement(strtoupper($element)), 'MathML element test failed on: ' . strtoupper($element));
+            $this->assertFalse(Elements::is_math_ml_element(strtoupper($element)), 'MathML element test failed on: ' . strtoupper($element));
         }
 
         $nonMathML = [
@@ -281,17 +281,17 @@ class ElementsTest extends TestCase
             'baz',
         ];
         foreach ($nonMathML as $element) {
-            $this->assertFalse(Elements::isMathMLElement($element), 'MathML element test failed on: ' . $element);
+            $this->assertFalse(Elements::is_math_ml_element($element), 'MathML element test failed on: ' . $element);
         }
     }
 
     public function testIsSvgElement()
     {
         foreach ($this->svgElements as $element) {
-            $this->assertTrue(Elements::isSvgElement($element), 'SVG element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_svg_element($element), 'SVG element test failed on: ' . $element);
 
             // SVG is case sensitive so these should all fail.
-            $this->assertFalse(Elements::isSvgElement(strtoupper($element)), 'SVG element test failed on: ' . strtoupper($element));
+            $this->assertFalse(Elements::is_svg_element(strtoupper($element)), 'SVG element test failed on: ' . strtoupper($element));
         }
 
         $nonSVG = [
@@ -300,33 +300,33 @@ class ElementsTest extends TestCase
             'baz',
         ];
         foreach ($nonSVG as $element) {
-            $this->assertFalse(Elements::isSvgElement($element), 'SVG element test failed on: ' . $element);
+            $this->assertFalse(Elements::is_svg_element($element), 'SVG element test failed on: ' . $element);
         }
     }
 
     public function testIsElement()
     {
         foreach ($this->html5Elements as $element) {
-            $this->assertTrue(Elements::isElement($element), 'html5 element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_element($element), 'html5 element test failed on: ' . $element);
 
-            $this->assertTrue(Elements::isElement(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
+            $this->assertTrue(Elements::is_element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
         }
 
         foreach ($this->mathmlElements as $element) {
-            $this->assertTrue(Elements::isElement($element), 'MathML element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_element($element), 'MathML element test failed on: ' . $element);
 
             // MathML is case sensitive so these should all fail.
-            $this->assertFalse(Elements::isElement(strtoupper($element)), 'MathML element test failed on: ' . strtoupper($element));
+            $this->assertFalse(Elements::is_element(strtoupper($element)), 'MathML element test failed on: ' . strtoupper($element));
         }
 
         foreach ($this->svgElements as $element) {
-            $this->assertTrue(Elements::isElement($element), 'SVG element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_element($element), 'SVG element test failed on: ' . $element);
 
             // SVG is case sensitive so these should all fail. But, there is duplication
             // html5 and SVG. Since html5 is case insensitive we need to make sure
             // it's not a html5 element first.
             if (!in_array($element, $this->html5Elements)) {
-                $this->assertFalse(Elements::isElement(strtoupper($element)), 'SVG element test failed on: ' . strtoupper($element));
+                $this->assertFalse(Elements::is_element(strtoupper($element)), 'SVG element test failed on: ' . strtoupper($element));
             }
         }
 
@@ -336,9 +336,9 @@ class ElementsTest extends TestCase
             'baz',
         ];
         foreach ($nonhtml5 as $element) {
-            $this->assertFalse(Elements::isElement($element), 'html5 element test failed on: ' . $element);
+            $this->assertFalse(Elements::is_element($element), 'html5 element test failed on: ' . $element);
 
-            $this->assertFalse(Elements::isElement(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
+            $this->assertFalse(Elements::is_element(strtoupper($element)), 'html5 element test failed on: ' . strtoupper($element));
         }
     }
 
@@ -359,10 +359,10 @@ class ElementsTest extends TestCase
 
     public function testIsA()
     {
-        $this->assertTrue(Elements::isA('script', Elements::KNOWN_ELEMENT));
-        $this->assertFalse(Elements::isA('scriptypoo', Elements::KNOWN_ELEMENT));
-        $this->assertTrue(Elements::isA('script', Elements::TEXT_RAW));
-        $this->assertFalse(Elements::isA('script', Elements::TEXT_RCDATA));
+        $this->assertTrue(Elements::is_a('script', Elements::KNOWN_ELEMENT));
+        $this->assertFalse(Elements::is_a('scriptypoo', Elements::KNOWN_ELEMENT));
+        $this->assertTrue(Elements::is_a('script', Elements::TEXT_RAW));
+        $this->assertFalse(Elements::is_a('script', Elements::TEXT_RCDATA));
 
         $voidElements = [
             'area',
@@ -379,7 +379,7 @@ class ElementsTest extends TestCase
         ];
 
         foreach ($voidElements as $element) {
-            $this->assertTrue(Elements::isA($element, Elements::VOID_TAG), 'Void element test failed on: ' . $element);
+            $this->assertTrue(Elements::is_a($element, Elements::VOID_TAG), 'Void element test failed on: ' . $element);
         }
 
         $nonVoid = [
@@ -388,7 +388,7 @@ class ElementsTest extends TestCase
             'div',
         ];
         foreach ($nonVoid as $tag) {
-            $this->assertFalse(Elements::isA($tag, Elements::VOID_TAG), 'Void element test failed on: ' . $tag);
+            $this->assertFalse(Elements::is_a($tag, Elements::VOID_TAG), 'Void element test failed on: ' . $tag);
         }
 
         $blockTags = [
@@ -426,7 +426,7 @@ class ElementsTest extends TestCase
         ];
 
         foreach ($blockTags as $tag) {
-            $this->assertTrue(Elements::isA($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
+            $this->assertTrue(Elements::is_a($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
         }
 
         $nonBlockTags = [
@@ -436,7 +436,7 @@ class ElementsTest extends TestCase
             'video',
         ];
         foreach ($nonBlockTags as $tag) {
-            $this->assertFalse(Elements::isA($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
+            $this->assertFalse(Elements::is_a($tag, Elements::BLOCK_TAG), 'Block tag test failed on: ' . $tag);
         }
     }
 
@@ -452,7 +452,7 @@ class ElementsTest extends TestCase
         ];
 
         foreach ($tests as $input => $expected) {
-            $this->assertEquals($expected, Elements::normalizeSvgElement($input));
+            $this->assertEquals($expected, Elements::normalize_svg_element($input));
         }
     }
 
@@ -468,7 +468,7 @@ class ElementsTest extends TestCase
         ];
 
         foreach ($tests as $input => $expected) {
-            $this->assertEquals($expected, Elements::normalizeSvgAttribute($input));
+            $this->assertEquals($expected, Elements::normalize_svg_attribute($input));
         }
     }
 
@@ -481,7 +481,7 @@ class ElementsTest extends TestCase
         ];
 
         foreach ($tests as $input => $expected) {
-            $this->assertEquals($expected, Elements::normalizeMathMlAttribute($input));
+            $this->assertEquals($expected, Elements::normalize_math_ml_attribute($input));
         }
     }
 }

@@ -21,7 +21,7 @@ echo '<?php
 namespace Masterminds\\HTML5;
 /** Entity lookup tables. This class is automatically generated. */
 class Entities {
-  public static $byName = ';
+  public static $by_name = ';
 var_export($table);
 echo ';
 }' . PHP_EOL;

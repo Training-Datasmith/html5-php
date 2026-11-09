@@ -3,22 +3,22 @@
 declare(strict_types=1);
 /**
  * @file
- * Test the Scanner. This requires the InputStream tests are all good.
+ * Test the Scanner. This requires the String_Input_Stream tests are all good.
  */
 
 namespace Masterminds\HTML5\Tests\Parser;
 
 use Masterminds\HTML5\Parser\Scanner;
-use Masterminds\HTML5\Parser\StringInputStream;
+use Masterminds\HTML5\Parser\String_Input_Stream;
 
-class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
+class Scanner_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     /**
      * A canary test to make sure the basics are setup and working.
      */
     public function testConstructDeprecated()
     {
-        $is = new StringInputStream('abc');
+        $is = new String_Input_Stream('abc');
         $s = new Scanner($is);
 
         $this->assertInstanceOf('\Masterminds\HTML5\Parser\Scanner', $s);
@@ -31,7 +31,7 @@ class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testNextDeprecated()
     {
-        $s = new Scanner(new StringInputStream('abc'));
+        $s = new Scanner(new String_Input_Stream('abc'));
 
         $this->assertEquals('b', $s->next());
         $this->assertEquals('c', $s->next());
@@ -104,57 +104,57 @@ class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
     {
         $s = new Scanner('ab13ck45DE*');
 
-        $this->assertEquals('ab13c', $s->getHex());
+        $this->assertEquals('ab13c', $s->get_hex());
 
         $s->next();
-        $this->assertEquals('45DE', $s->getHex());
+        $this->assertEquals('45DE', $s->get_hex());
     }
 
     public function testGetAsciiAlpha()
     {
         $s = new Scanner('abcdef1%mnop*');
 
-        $this->assertEquals('abcdef', $s->getAsciiAlpha());
+        $this->assertEquals('abcdef', $s->get_ascii_alpha());
 
         // Move past the 1% to scan the next group of text.
         $s->next();
         $s->next();
-        $this->assertEquals('mnop', $s->getAsciiAlpha());
+        $this->assertEquals('mnop', $s->get_ascii_alpha());
     }
 
     public function testGetAsciiAlphaNum()
     {
         $s = new Scanner('abcdef1ghpo#mn94op');
 
-        $this->assertEquals('abcdef1ghpo', $s->getAsciiAlphaNum());
+        $this->assertEquals('abcdef1ghpo', $s->get_ascii_alpha_num());
 
         // Move past the # to scan the next group of text.
         $s->next();
-        $this->assertEquals('mn94op', $s->getAsciiAlphaNum());
+        $this->assertEquals('mn94op', $s->get_ascii_alpha_num());
     }
 
     public function testGetNumeric()
     {
         $s = new Scanner('1784a 45 9867 #');
 
-        $this->assertEquals('1784', $s->getNumeric());
+        $this->assertEquals('1784', $s->get_numeric());
 
         // Move past the 'a ' to scan the next group of text.
         $s->next();
         $s->next();
-        $this->assertEquals('45', $s->getNumeric());
+        $this->assertEquals('45', $s->get_numeric());
     }
 
     public function testCurrentLine()
     {
         $s = new Scanner("1784a\n45\n9867 #\nThis is a test.");
 
-        $this->assertEquals(1, $s->currentLine());
+        $this->assertEquals(1, $s->current_line());
 
         // Move to the next line.
-        $s->getAsciiAlphaNum();
+        $s->get_ascii_alpha_num();
         $s->next();
-        $this->assertEquals(2, $s->currentLine());
+        $this->assertEquals(2, $s->current_line());
     }
 
     public function testColumnOffset()
@@ -162,8 +162,8 @@ class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
         $s = new Scanner("1784a a\n45 9867 #\nThis is a test.");
 
         // Move the pointer to the space.
-        $s->getAsciiAlphaNum();
-        $this->assertEquals(5, $s->columnOffset());
+        $s->get_ascii_alpha_num();
+        $this->assertEquals(5, $s->column_offset());
 
         // We move the pointer ahead. There must be a better way to do this.
         $s->next();
@@ -172,7 +172,7 @@ class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
         $s->next();
         $s->next();
         $s->next();
-        $this->assertEquals(3, $s->columnOffset());
+        $this->assertEquals(3, $s->column_offset());
     }
 
     public function testRemainingChars()
@@ -180,7 +180,7 @@ class ScannerTest extends \Masterminds\HTML5\Tests\TestCase
         $string = "\n45\n9867 #\nThis is a test.";
         $s = new Scanner("1784a\n45\n9867 #\nThis is a test.");
 
-        $s->getAsciiAlphaNum();
-        $this->assertEquals($string, $s->remainingChars());
+        $s->get_ascii_alpha_num();
+        $this->assertEquals($string, $s->remaining_chars());
     }
 }

@@ -398,9 +398,9 @@ class Elements
      *
      * Example:
      *
-     * Elements::isA('script', Elements::TEXT_RAW); // Returns true.
+     * Elements::is_a('script', Elements::TEXT_RAW); // Returns true.
      *
-     * Elements::isA('script', Elements::TEXT_RCDATA); // Returns false.
+     * Elements::is_a('script', Elements::TEXT_RCDATA); // Returns false.
      *
      * @param string $name The element name.
      * @param int    $mask One of the constants on this class.
@@ -418,7 +418,7 @@ class Elements
      *
      * @return bool true if a html5 element and false otherwise.
      */
-    public static function is_html5element($name)
+    public static function is_html5_element($name)
     {
         // html5 element names are case insensitive. Forcing lowercase for the check.
         // Do we need this check or will all data passed here already be lowercase?
@@ -459,7 +459,7 @@ class Elements
      */
     public static function is_element($name)
     {
-        if (static::is_html5element($name)) {
+        if (static::is_html5_element($name)) {
             return true;
         }
         if (static::is_math_ml_element($name)) {

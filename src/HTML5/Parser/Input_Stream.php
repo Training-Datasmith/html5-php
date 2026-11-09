@@ -7,10 +7,10 @@ namespace Masterminds\HTML5\Parser;
  * Interface for stream readers.
  *
  * The parser only reads from streams. Various input sources can write
- * an adapater to this InputStream.
+ * an adapater to this input stream.
  *
- * Currently provided InputStream implementations include
- * FileInputStream and StringInputStream.
+ * Currently provided input stream implementations include
+ * File_Input_Stream and String_Input_Stream.
  *
  * @deprecated since 2.4, to remove in 3.0. Use a string in the scanner instead.
  */

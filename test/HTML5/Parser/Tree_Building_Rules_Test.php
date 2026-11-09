@@ -8,15 +8,15 @@ declare(strict_types=1);
 
 namespace Masterminds\HTML5\Tests\Parser;
 
-use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5\Parser\DOM_Tree_Builder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
-use Masterminds\HTML5\Parser\TreeBuildingRules;
+use Masterminds\HTML5\Parser\Tree_Building_Rules;
 
 /**
  * These tests are functional, not necessarily unit tests.
  */
-class TreeBuildingRulesTest extends \Masterminds\HTML5\Tests\TestCase
+class Tree_Building_Rules_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     public const HTML_STUB = '<!DOCTYPE html><html><head><title>test</title></head><body>%s</body></html>';
 
@@ -25,7 +25,7 @@ class TreeBuildingRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     protected function parse($string)
     {
-        $treeBuilder = new DOMTreeBuilder();
+        $treeBuilder = new DOM_Tree_Builder();
         $scanner = new Scanner($string);
         $parser = new Tokenizer($scanner, $treeBuilder);
 
@@ -39,7 +39,7 @@ class TreeBuildingRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     protected function parseFragment($string)
     {
-        $events = new DOMTreeBuilder(true);
+        $events = new DOM_Tree_Builder(true);
         $scanner = new Scanner($string);
         $parser = new Tokenizer($scanner, $events);
 
@@ -62,10 +62,10 @@ class TreeBuildingRulesTest extends \Masterminds\HTML5\Tests\TestCase
     public function testHasRules()
     {
         $doc = new \DOMDocument('1.0');
-        $engine = new TreeBuildingRules($doc);
+        $engine = new Tree_Building_Rules($doc);
 
-        $this->assertTrue($engine->hasRules('li'));
-        $this->assertFalse($engine->hasRules('imaginary'));
+        $this->assertTrue($engine->has_rules('li'));
+        $this->assertFalse($engine->has_rules('imaginary'));
     }
 
     public function testHandleLI()

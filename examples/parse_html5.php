@@ -30,7 +30,7 @@ $html = <<<HTML
 </html>
 HTML;
 
-$dom = $html5->loadHTML($html);
+$dom = $html5->load_html($html);
 
 // Use standard DOMDocument / DOMXPath APIs
 $xpath = new DOMXPath($dom);
@@ -38,17 +38,17 @@ $h1    = $xpath->query('//h1')->item(0);
 echo "H1 text: " . $h1->textContent . "\n";
 
 // --- Parse a fragment ---
-$fragment = $html5->loadHTMLFragment('<p>Fragment <em>text</em>.</p>');
+$fragment = $html5->load_html_fragment('<p>Fragment <em>text</em>.</p>');
 echo "Fragment node count: " . $fragment->childNodes->length . "\n";
 
 // --- Serialize back to HTML5 string ---
-$output = $html5->saveHTML($dom);
+$output = $html5->save_html($dom);
 echo "Serialized length: " . strlen($output) . " bytes\n";
 
 // --- Check for parse errors ---
-if ($html5->hasErrors()) {
+if ($html5->has_errors()) {
     echo "Parse errors:\n";
-    foreach ($html5->getErrors() as $error) {
+    foreach ($html5->get_errors() as $error) {
         echo "  - " . $error . "\n";
     }
 } else {

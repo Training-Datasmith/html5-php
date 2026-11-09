@@ -84,17 +84,17 @@ HERE;
 
 // Parse the document. $dom is a DOMDocument.
 $html5 = new HTML5();
-$dom = $html5->loadHTML($html);
+$dom = $html5->load_html($html);
 
 // Render it as HTML5:
-print $html5->saveHTML($dom);
+print $html5->save_html($dom);
 
 // Or save it to a file:
 $html5->save($dom, 'out.html');
 ```
 
 The `$dom` created by the parser is a full `DOMDocument` object. And the
-`save()` and `saveHTML()` methods will take any DOMDocument.
+`save()` and `save_html()` methods will take any DOMDocument.
 
 ### Options
 
@@ -110,7 +110,7 @@ $options = array(
 // Provide the options to the constructor
 $html5 = new HTML5($options);
 
-$dom = $html5->loadHTML($html);
+$dom = $html5->load_html($html);
 ```
 
 The following options are supported:
@@ -168,7 +168,7 @@ into a string.
 - `HTML5` manages the `Traverser` and stores the resultant data
 in the correct place.
 
-The serializer (`save()`, `saveHTML()`) follows the
+The serializer (`save()`, `save_html()`) follows the
 [section 8.9 of the HTML 5.0 spec](http://www.w3.org/TR/2012/CR-html5-20121217/syntax.html#serializing-html-fragments).
 So tags are serialized according to these rules:
 
@@ -220,10 +220,10 @@ To use XML style namespaces you have to configure well the main `HTML5` instance
 ```php
 use Masterminds\HTML5;
 $html = new HTML5(array(
-    "xmlNamespaces" => true
+    "xml_namespaces" => true
 ));
 
-$dom = $html->loadHTML('<t:tag xmlns:t="http://www.example.com"/>');
+$dom = $html->load_html('<t:tag xmlns:t="http://www.example.com"/>');
 
 $dom->documentElement->namespaceURI; // http://www.example.com
 
@@ -235,12 +235,12 @@ but its elements will be namespaced.
 ```php
 use Masterminds\HTML5;
 $html = new HTML5(array(
-    "implicitNamespaces"=>array(
+    "implicit_namespaces"=>array(
         "t"=>"http://www.example.com"
     )
 ));
 
-$dom = $html->loadHTML('<t:tag/>');
+$dom = $html->load_html('<t:tag/>');
 
 $dom->documentElement->namespaceURI; // http://www.example.com
 

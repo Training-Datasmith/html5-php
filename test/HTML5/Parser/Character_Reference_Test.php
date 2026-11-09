@@ -3,44 +3,44 @@
 declare(strict_types=1);
 /**
  * @file
- * Test the Scanner. This requires the InputStream tests are all good.
+ * Test the Scanner. This requires the String_Input_Stream tests are all good.
  */
 
 namespace Masterminds\HTML5\Tests\Parser;
 
-use Masterminds\HTML5\Parser\CharacterReference;
+use Masterminds\HTML5\Parser\Character_Reference;
 
-class CharacterReferenceTest extends \Masterminds\HTML5\Tests\TestCase
+class Character_Reference_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     public function testLookupName()
     {
-        $this->assertEquals('&', CharacterReference::lookupName('amp'));
-        $this->assertEquals('<', CharacterReference::lookupName('lt'));
-        $this->assertEquals('>', CharacterReference::lookupName('gt'));
-        $this->assertEquals('"', CharacterReference::lookupName('quot'));
-        $this->assertEquals('∌', CharacterReference::lookupName('NotReverseElement'));
+        $this->assertEquals('&', Character_Reference::lookup_name('amp'));
+        $this->assertEquals('<', Character_Reference::lookup_name('lt'));
+        $this->assertEquals('>', Character_Reference::lookup_name('gt'));
+        $this->assertEquals('"', Character_Reference::lookup_name('quot'));
+        $this->assertEquals('∌', Character_Reference::lookup_name('NotReverseElement'));
 
-        $this->assertNull(CharacterReference::lookupName('StinkyCheese'));
+        $this->assertNull(Character_Reference::lookup_name('StinkyCheese'));
     }
 
     public function testLookupHex()
     {
-        $this->assertEquals('<', CharacterReference::lookupHex('3c'));
-        $this->assertEquals('<', CharacterReference::lookupHex('003c'));
-        $this->assertEquals('&', CharacterReference::lookupHex('26'));
-        $this->assertEquals('}', CharacterReference::lookupHex('7d'));
-        $this->assertEquals('Σ', CharacterReference::lookupHex('3A3'));
-        $this->assertEquals('Σ', CharacterReference::lookupHex('03A3'));
-        $this->assertEquals('Σ', CharacterReference::lookupHex('3a3'));
-        $this->assertEquals('Σ', CharacterReference::lookupHex('03a3'));
+        $this->assertEquals('<', Character_Reference::lookup_hex('3c'));
+        $this->assertEquals('<', Character_Reference::lookup_hex('003c'));
+        $this->assertEquals('&', Character_Reference::lookup_hex('26'));
+        $this->assertEquals('}', Character_Reference::lookup_hex('7d'));
+        $this->assertEquals('Σ', Character_Reference::lookup_hex('3A3'));
+        $this->assertEquals('Σ', Character_Reference::lookup_hex('03A3'));
+        $this->assertEquals('Σ', Character_Reference::lookup_hex('3a3'));
+        $this->assertEquals('Σ', Character_Reference::lookup_hex('03a3'));
     }
 
     public function testLookupDecimal()
     {
-        $this->assertEquals('&', CharacterReference::lookupDecimal(38));
-        $this->assertEquals('&', CharacterReference::lookupDecimal('38'));
-        $this->assertEquals('<', CharacterReference::lookupDecimal(60));
-        $this->assertEquals('Σ', CharacterReference::lookupDecimal(931));
-        $this->assertEquals('Σ', CharacterReference::lookupDecimal('0931'));
+        $this->assertEquals('&', Character_Reference::lookup_decimal(38));
+        $this->assertEquals('&', Character_Reference::lookup_decimal('38'));
+        $this->assertEquals('<', Character_Reference::lookup_decimal(60));
+        $this->assertEquals('Σ', Character_Reference::lookup_decimal(931));
+        $this->assertEquals('Σ', Character_Reference::lookup_decimal('0931'));
     }
 }

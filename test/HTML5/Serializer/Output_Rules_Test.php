@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Masterminds\HTML5\Tests\Serializer;
 
 use Masterminds\HTML5;
-use Masterminds\HTML5\Serializer\OutputRules;
+use Masterminds\HTML5\Serializer\Output_Rules;
 use Masterminds\HTML5\Serializer\Traverser;
 
-class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
+class Output_Rules_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     protected $markup = '<!doctype html>
     <html lang="en">
@@ -44,7 +44,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     public function getProtectedMethod($name)
     {
-        $class = new \ReflectionClass('\Masterminds\HTML5\Serializer\OutputRules');
+        $class = new \ReflectionClass('\Masterminds\HTML5\Serializer\Output_Rules');
         $method = $class->getMethod($name);
         $method->setAccessible(true);
 
@@ -60,12 +60,12 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         return $property;
     }
 
-    public function getOutputRules($options = [])
+    public function get_output_rules($options = [])
     {
-        $options = $options + $this->html5->getOptions();
+        $options = $options + $this->html5->get_options();
         $stream = fopen('php://temp', 'w');
-        $dom = $this->html5->loadHTML($this->markup);
-        $r = new OutputRules($stream, $options);
+        $dom = $this->html5->load_html($this->markup);
+        $r = new Output_Rules($stream, $options);
         $t = new Traverser($dom, $stream, $r, $options);
 
         return [
@@ -76,11 +76,11 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testDocument()
     {
-        $dom = $this->html5->loadHTML('<!doctype html><html lang="en"><body>foo</body></html>');
+        $dom = $this->html5->load_html('<!doctype html><html lang="en"><body>foo</body></html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $r->document($dom);
         $expected = '<!DOCTYPE html>' . PHP_EOL . '<html lang="en"><body>foo</body></html>' . PHP_EOL;
@@ -89,11 +89,11 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testEmptyDocument()
     {
-        $dom = $this->html5->loadHTML('');
+        $dom = $this->html5->load_html('');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $r->document($dom);
         $expected = '<!DOCTYPE html>' . PHP_EOL;
@@ -102,11 +102,11 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testDoctype()
     {
-        $dom = $this->html5->loadHTML('<!doctype html><html lang="en"><body>foo</body></html>');
+        $dom = $this->html5->load_html('<!doctype html><html lang="en"><body>foo</body></html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $m = $this->getProtectedMethod('doctype');
         $m->invoke($r, 'foo');
@@ -115,7 +115,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testElement()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <body>
@@ -130,8 +130,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
         $r->element($list->item(0));
@@ -141,7 +141,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     public function testSerializeWithNamespaces()
     {
         $this->html5 = $this->getInstance([
-            'xmlNamespaces' => true,
+            'xml_namespaces' => true,
         ]);
 
         $source = '
@@ -158,14 +158,14 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
                 </body>
             </html>';
 
-        $dom = $this->html5->loadHTML($source, [
-            'xmlNamespaces' => true,
+        $dom = $this->html5->load_html($source, [
+            'xml_namespaces' => true,
         ]);
-        $this->assertFalse($this->html5->hasErrors(), print_r($this->html5->getErrors(), 1));
+        $this->assertFalse($this->html5->has_errors(), print_r($this->html5->get_errors(), true));
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $t->walk();
         $rendered = stream_get_contents($stream, -1, 0);
@@ -179,7 +179,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testElementWithScript()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <head>
@@ -199,8 +199,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $script = $dom->getElementsByTagName('script');
         $r->element($script->item(0));
@@ -219,7 +219,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testElementWithStyle()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <head>
@@ -236,8 +236,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $style = $dom->getElementsByTagName('style');
         $r->element($style->item(0));
@@ -250,7 +250,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testOpenTag()
     {
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div id="foo" class="bar baz">foo bar baz</div>
@@ -258,18 +258,18 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     </html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
-        $m = $this->getProtectedMethod('openTag');
+        $m = $this->getProtectedMethod('open_tag');
         $m->invoke($r, $list->item(0));
         $this->assertEquals('<div id="foo" class="bar baz">', stream_get_contents($stream, -1, 0));
     }
 
     public function testCData()
     {
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div><![CDATA[bar]]></div>
@@ -277,14 +277,14 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     </html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
         $r->cdata($list->item(0)->childNodes->item(0));
         $this->assertEquals('<![CDATA[bar]]>', stream_get_contents($stream, -1, 0));
 
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div id="foo"></div>
@@ -294,8 +294,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         $dom->getElementById('foo')->appendChild(new \DOMCdataSection(']]>Foo<[![CDATA test ]]>'));
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
         $list = $dom->getElementsByTagName('div');
         $r->cdata($list->item(0)->childNodes->item(0));
 
@@ -304,7 +304,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testComment()
     {
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div><!-- foo --></div>
@@ -312,14 +312,14 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     </html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
         $r->comment($list->item(0)->childNodes->item(0));
         $this->assertEquals('<!-- foo -->', stream_get_contents($stream, -1, 0));
 
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div id="foo"></div>
@@ -328,8 +328,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         $dom->getElementById('foo')->appendChild(new \DOMComment('<!-- --> --> Foo -->'));
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
         $r->comment($list->item(0)->childNodes->item(0));
@@ -341,7 +341,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testText()
     {
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <head>
         <script>baz();</script>
@@ -349,14 +349,14 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     </html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('script');
         $r->text($list->item(0)->childNodes->item(0));
         $this->assertEquals('baz();', stream_get_contents($stream, -1, 0));
 
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <head id="foo"></head>
     </html>');
@@ -364,8 +364,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         $foo->appendChild(new \DOMText('<script>alert("hi");</script>'));
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $r->text($foo->firstChild);
         $this->assertEquals('&lt;script&gt;alert("hi");&lt;/script&gt;', stream_get_contents($stream, -1, 0));
@@ -373,7 +373,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testNl()
     {
-        list($o, $s) = $this->getOutputRules();
+        list($o, $s) = $this->get_output_rules();
 
         $m = $this->getProtectedMethod('nl');
         $m->invoke($o);
@@ -382,7 +382,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testWr()
     {
-        list($o, $s) = $this->getOutputRules();
+        list($o, $s) = $this->get_output_rules();
 
         $m = $this->getProtectedMethod('wr');
         $m->invoke($o, 'foo');
@@ -392,10 +392,10 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     public function testWrWithNullNodeValue()
     {
         // Namespace nodes with an empty URI (xmlns:w="") can expose a null nodeValue; verify no error on serialization.
-        $this->html5 = $this->getInstance(['xmlNamespaces' => true]);
+        $this->html5 = $this->getInstance(['xml_namespaces' => true]);
         $input = '<!doctype html><html><body><span xmlns:w="" data-x="1"></span></body></html>';
-        $dom = $this->html5->loadHTML($input);
-        $result = $this->html5->saveHTML($dom);
+        $dom = $this->html5->load_html($input);
+        $result = $this->html5->save_html($dom);
         $this->assertTrue(false !== strpos($result, 'xmlns:w=""'));
     }
 
@@ -455,12 +455,12 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     public function testEnc($isAttribute, $test, $expected, $expectedEncoded)
     {
-        list($o, $s) = $this->getOutputRules();
+        list($o, $s) = $this->get_output_rules();
         $m = $this->getProtectedMethod('enc');
 
         $this->assertEquals($expected, $m->invoke($o, $test, $isAttribute));
 
-        list($o, $s) = $this->getOutputRules([
+        list($o, $s) = $this->get_output_rules([
             'encode_entities' => true,
         ]);
         $m = $this->getProtectedMethod('enc');
@@ -474,7 +474,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     public function testEscape($isAttribute, $test, $expected, $expectedEncoded)
     {
-        list($o, $s) = $this->getOutputRules();
+        list($o, $s) = $this->get_output_rules();
         $m = $this->getProtectedMethod('escape');
 
         $this->assertEquals($expected, $m->invoke($o, $test, $isAttribute));
@@ -501,11 +501,11 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     public function testBooleanAttrs($html)
     {
-        $dom = $this->html5->loadHTML('<!doctype html><html lang="en"><body>' . $html . '</body></html>');
+        $dom = $this->html5->load_html('<!doctype html><html lang="en"><body>' . $html . '</body></html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $node = $dom->getElementsByTagName('body')->item(0)->firstChild;
 
@@ -522,7 +522,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testAttrs()
     {
-        $dom = $this->html5->loadHTML('<!doctype html>
+        $dom = $this->html5->load_html('<!doctype html>
     <html lang="en">
       <body>
         <div id="foo" class="bar baz">foo bar baz</div>
@@ -530,8 +530,8 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
     </html>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('div');
 
@@ -544,7 +544,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testSvg()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <body>
@@ -562,20 +562,20 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('svg');
         $r->element($list->item(0));
         $contents = stream_get_contents($stream, -1, 0);
-        $this->assertRegExp('|<svg width="150" height="100" viewBox="0 0 3 2">|', $contents);
-        $this->assertRegExp('|<rect width="1" height="2" x="0" fill="#008d46" />|', $contents);
-        $this->assertRegExp('|<rect id="Bar" x="300" y="100" width="300" height="100" fill="rgb\(255,255,0\)">|', $contents);
+        $this->assertMatchesRegularExpression('|<svg width="150" height="100" viewBox="0 0 3 2">|', $contents);
+        $this->assertMatchesRegularExpression('|<rect width="1" height="2" x="0" fill="#008d46" />|', $contents);
+        $this->assertMatchesRegularExpression('|<rect id="Bar" x="300" y="100" width="300" height="100" fill="rgb\(255,255,0\)">|', $contents);
     }
 
     public function testMath()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <body>
@@ -592,32 +592,32 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('math');
         $r->element($list->item(0));
         $content = stream_get_contents($stream, -1, 0);
-        $this->assertRegExp('|<math>|', $content);
-        $this->assertRegExp('|<csymbol definitionURL="http://www.example.com/mathops/multiops.html#plusminus">|', $content);
+        $this->assertMatchesRegularExpression('|<math>|', $content);
+        $this->assertMatchesRegularExpression('|<csymbol definitionURL="http://www.example.com/mathops/multiops.html#plusminus">|', $content);
     }
 
     public function testProcessorInstruction()
     {
-        $dom = $this->html5->loadHTMLFragment('<?foo bar ?>');
+        $dom = $this->html5->load_html_fragment('<?foo bar ?>');
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
-        $r->processorInstruction($dom->firstChild);
+        $r->processor_instruction($dom->firstChild);
         $content = stream_get_contents($stream, -1, 0);
-        $this->assertRegExp('|<\?foo bar \?>|', $content);
+        $this->assertMatchesRegularExpression('|<\?foo bar \?>|', $content);
     }
 
     public function testAddressTag()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
     <html lang="en">
       <body>
@@ -631,18 +631,18 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         );
 
         $stream = fopen('php://temp', 'w');
-        $r = new OutputRules($stream, $this->html5->getOptions());
-        $t = new Traverser($dom, $stream, $r, $this->html5->getOptions());
+        $r = new Output_Rules($stream, $this->html5->get_options());
+        $t = new Traverser($dom, $stream, $r, $this->html5->get_options());
 
         $list = $dom->getElementsByTagName('address');
         $r->element($list->item(0));
         $contents = stream_get_contents($stream, -1, 0);
 
-        $this->assertRegExp('|<address>|', $contents);
-        $this->assertRegExp('|<a href="../People/Raggett/">Dave Raggett</a>,|', $contents);
-        $this->assertRegExp('|<a href="../People/Arnaud/">Arnaud Le Hors</a>,|', $contents);
-        $this->assertRegExp('|contact persons for the <a href="Activity">W3C HTML Activity</a>|', $contents);
-        $this->assertRegExp('|</address>|', $contents);
+        $this->assertMatchesRegularExpression('|<address>|', $contents);
+        $this->assertMatchesRegularExpression('|<a href="../People/Raggett/">Dave Raggett</a>,|', $contents);
+        $this->assertMatchesRegularExpression('|<a href="../People/Arnaud/">Arnaud Le Hors</a>,|', $contents);
+        $this->assertMatchesRegularExpression('|contact persons for the <a href="Activity">W3C HTML Activity</a>|', $contents);
+        $this->assertMatchesRegularExpression('|</address>|', $contents);
     }
 
     /**
@@ -650,7 +650,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
      */
     public function testHandlingInvalidRawContent()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
 <html lang="en" id="base">
     <body>
@@ -667,7 +667,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
         $styleElement = $dom->getElementById('template');
         $styleElement->appendChild($badNode);
 
-        $contents = $this->html5->saveHTML($dom);
+        $contents = $this->html5->save_html($dom);
 
         $this->assertTrue(false !== strpos($contents, '<script id="template" type="x-tmpl-mustache">
            <h1>Hello!</h1>
@@ -676,7 +676,7 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 
     public function testSvgAndMathElementsWithoutChildNodesAreHandledAsVoidTags()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
 <html lang="en" id="base">
     <body>
@@ -686,9 +686,9 @@ class OutputRulesTest extends \Masterminds\HTML5\Tests\TestCase
 </html>'
         );
 
-        $contents = $this->html5->saveHTML($dom);
+        $contents = $this->html5->save_html($dom);
 
-        self::assertRegExp('|^\h*<svg />$|m', $contents);
-        self::assertRegExp('|^\h*<math />$|m', $contents);
+        self::assertMatchesRegularExpression('|^\h*<svg />$|m', $contents);
+        self::assertMatchesRegularExpression('|^\h*<math />$|m', $contents);
     }
 }

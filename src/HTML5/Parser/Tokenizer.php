@@ -49,7 +49,7 @@ class Tokenizer
      * the Tokenizer::parse() method.`
      *
      * @param Scanner      $scanner      A scanner initialized with an input stream.
-     * @param EventHandler $eventHandler An event handler, initialized and ready to receive events.
+     * @param Event_Handler $eventHandler An event handler, initialized and ready to receive events.
      * @param string       $mode
      */
     public function __construct($scanner, $event_handler, $mode = self::CONFORMANT_HTML)
@@ -241,7 +241,7 @@ class Tokenizer
         }
         $sequence = '</' . $this->until_tag;
         $txt = '';
-        $case_sensitive = !Elements::is_html5element($this->until_tag);
+        $case_sensitive = !Elements::is_html5_element($this->until_tag);
         while (false !== $tok && !('<' == $tok && $this->scanner->sequence_matches($sequence, $case_sensitive))) {
             if ('&' == $tok) {
                 $txt .= $this->decode_character_reference();
@@ -348,7 +348,7 @@ class Tokenizer
                 $this->scanner->whitespace();
                 $this->attribute($attributes);
             } while (!$this->is_tag_end($self_close));
-        } catch (ParseError $e) {
+        } catch (Parse_Error $e) {
             $self_close = false;
         }
         $mode = $this->events->start_tag($name, $attributes, $self_close);
@@ -397,7 +397,7 @@ class Tokenizer
      *
      * @return bool
      *
-     * @throws ParseError
+     * @throws Parse_Error
      */
     protected function attribute(array &$attributes)
     {
@@ -410,7 +410,7 @@ class Tokenizer
             // Push the < back onto the stack.
             $this->scanner->unconsume();
             // Let the caller figure out how to handle this.
-            throw new ParseError('Start tag inside of attribute.');
+            throw new Parse_Error('Start tag inside of attribute.');
         }
         $name = strtolower($this->scanner->chars_until("/>=\n\f\t "));
         if (0 == strlen($name)) {
@@ -883,7 +883,7 @@ class Tokenizer
     /**
      * Send a TEXT event with the contents of the text buffer.
      *
-     * This emits an EventHandler::text() event with the current contents of the
+     * This emits an Event_Handler::text() event with the current contents of the
      * temporary text buffer. (The buffer is used to group as much PCDATA
      * as we can instead of emitting lots and lots of TEXT events.)
      */

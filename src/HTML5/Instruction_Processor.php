@@ -38,5 +38,5 @@ interface Instruction_Processor
      *                     it may choose to reset the current element to one of the elements
      *                     it created. (When in doubt, return the element passed in.)
      */
-    public function process(\Dom_Element $element, $name, $data);
+    public function process(\DOMElement $element, $name, $data);
 }

@@ -6,7 +6,7 @@ namespace Masterminds\HTML5\Tests;
 
 use Masterminds\HTML5;
 
-class Html5Test extends TestCase
+class Html5_Test extends Test_Case
 {
     /**
      * @var HTML5
@@ -26,16 +26,16 @@ class Html5Test extends TestCase
      */
     protected function cycle($html)
     {
-        $dom = $this->html5->loadHTML('<!DOCTYPE html><html><body>' . $html . '</body></html>');
-        $out = $this->html5->saveHTML($dom);
+        $dom = $this->html5->load_html('<!DOCTYPE html><html><body>' . $html . '</body></html>');
+        $out = $this->html5->save_html($dom);
 
         return $out;
     }
 
     protected function cycleFragment($fragment)
     {
-        $dom = $this->html5->loadHTMLFragment($fragment);
-        $out = $this->html5->saveHTML($dom);
+        $dom = $this->html5->load_html_fragment($fragment);
+        $out = $this->html5->save_html($dom);
 
         return $out;
     }
@@ -53,9 +53,9 @@ class Html5Test extends TestCase
                             </svg>
                         </body>
                     </html>';
-        $doc = $this->html5->loadHTML($html);
+        $doc = $this->html5->load_html($html);
         $this->assertInstanceOf('DOMElement', $doc->getElementsByTagName('image')->item(0));
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
     }
 
     public function testSelfClosingTableHierarchyElements()
@@ -105,36 +105,36 @@ class Html5Test extends TestCase
                         </tfoot>
                     </table>';
 
-        $doc = $this->html5->loadHTMLFragment($html);
+        $doc = $this->html5->load_html_fragment($html);
         $this->assertSame(
             preg_replace('/\s+/', '', $expected),
-            preg_replace('/\s+/', '', $this->html5->saveHTML($doc))
+            preg_replace('/\s+/', '', $this->html5->save_html($doc))
         );
     }
 
     public function testLoadOptions()
     {
         // doc
-        $dom = $this->html5->loadHTML($this->wrap('<t:tag/>'), [
-            'implicitNamespaces' => ['t' => 'http://example.com'],
-            'xmlNamespaces' => true,
+        $dom = $this->html5->load_html($this->wrap('<t:tag/>'), [
+            'implicit_namespaces' => ['t' => 'http://example.com'],
+            'xml_namespaces' => true,
         ]);
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
-        $this->assertFalse($this->html5->hasErrors());
+        $this->assertEmpty($this->html5->get_errors());
+        $this->assertFalse($this->html5->has_errors());
 
         $xpath = new \DOMXPath($dom);
         $xpath->registerNamespace('t', 'http://example.com');
         $this->assertEquals(1, $xpath->query('//t:tag')->length);
 
         // doc fragment
-        $frag = $this->html5->loadHTMLFragment('<t:tag/>', [
-            'implicitNamespaces' => ['t' => 'http://example.com'],
-            'xmlNamespaces' => true,
+        $frag = $this->html5->load_html_fragment('<t:tag/>', [
+            'implicit_namespaces' => ['t' => 'http://example.com'],
+            'xml_namespaces' => true,
         ]);
         $this->assertInstanceOf('\DOMDocumentFragment', $frag);
-        $this->assertEmpty($this->html5->getErrors());
-        $this->assertFalse($this->html5->hasErrors());
+        $this->assertEmpty($this->html5->get_errors());
+        $this->assertFalse($this->html5->has_errors());
 
         $frag->ownerDocument->appendChild($frag);
         $xpath = new \DOMXPath($frag->ownerDocument);
@@ -146,8 +146,8 @@ class Html5Test extends TestCase
     {
         $dom = $this->html5->load(__DIR__ . '/Fixtures/encoding/utf-8.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
-        $this->assertFalse($this->html5->hasErrors());
+        $this->assertEmpty($this->html5->get_errors());
+        $this->assertFalse($this->html5->has_errors());
 
         // phpunit 9
         if (method_exists($this, 'assertStringContainsString')) {
@@ -164,8 +164,8 @@ class Html5Test extends TestCase
         ]);
 
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
-        $this->assertFalse($this->html5->hasErrors());
+        $this->assertEmpty($this->html5->get_errors());
+        $this->assertFalse($this->html5->has_errors());
 
         $dumpedAsUtf8 = mb_convert_encoding($dom->saveHTML(), 'UTF-8', 'Windows-1252');
         $this->assertNotFalse(mb_strpos($dumpedAsUtf8, 'Ž'));
@@ -176,36 +176,36 @@ class Html5Test extends TestCase
 
     public function testErrors()
     {
-        $dom = $this->html5->loadHTML('<xx as>');
+        $dom = $this->html5->load_html('<xx as>');
         $this->assertInstanceOf('\DOMDocument', $dom);
 
-        $this->assertNotEmpty($this->html5->getErrors());
-        $this->assertTrue($this->html5->hasErrors());
+        $this->assertNotEmpty($this->html5->get_errors());
+        $this->assertTrue($this->html5->has_errors());
     }
 
     public function testLoad()
     {
         $dom = $this->html5->load(__DIR__ . '/Html5Test.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
-        $this->assertFalse($this->html5->hasErrors());
+        $this->assertEmpty($this->html5->get_errors());
+        $this->assertFalse($this->html5->has_errors());
 
         $file = fopen(__DIR__ . '/Html5Test.html', 'r');
         $dom = $this->html5->load($file);
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
 
-        $dom = $this->html5->loadHTMLFile(__DIR__ . '/Html5Test.html');
+        $dom = $this->html5->load_html_file(__DIR__ . '/Html5Test.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
     }
 
     public function testLoadHTML()
     {
         $contents = file_get_contents(__DIR__ . '/Html5Test.html');
-        $dom = $this->html5->loadHTML($contents);
+        $dom = $this->html5->load_html($contents);
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
     }
 
     public function testLoadHTMLWithComments()
@@ -214,39 +214,39 @@ class Html5Test extends TestCase
 <!--[if gt IE 8]> <!--><html class="no-js" lang="en"><!--<![endif]-->
 </html>';
 
-        $dom = $this->html5->loadHTML($contents);
+        $dom = $this->html5->load_html($contents);
         $this->assertInstanceOf('\DOMDocument', $dom);
 
         $expected = '<!DOCTYPE html>
 <!--[if lte IE 8]> <html class="no-js lt-ie9" lang="en"> <![endif]--><!--[if gt IE 8]> <!--><html class="no-js" lang="en"><!--<![endif]--></html>
 ';
-        $this->assertEquals($expected, $this->html5->saveHTML($dom));
+        $this->assertEquals($expected, $this->html5->save_html($dom));
     }
 
     public function testLoadHTMLFragment()
     {
         $fragment = '<section id="Foo"><div class="Bar">Baz</div></section>';
-        $dom = $this->html5->loadHTMLFragment($fragment);
+        $dom = $this->html5->load_html_fragment($fragment);
         $this->assertInstanceOf('\DOMDocumentFragment', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
     }
 
     public function testSaveHTML()
     {
         $dom = $this->html5->load(__DIR__ . '/Html5Test.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
 
-        $saved = $this->html5->saveHTML($dom);
-        $this->assertRegExp('|<p>This is a test.</p>|', $saved);
+        $saved = $this->html5->save_html($dom);
+        $this->assertMatchesRegularExpression('|<p>This is a test.</p>|', $saved);
     }
 
     public function testSaveHTMLFragment()
     {
         $fragment = '<section id="Foo"><div class="Bar">Baz</div></section>';
-        $dom = $this->html5->loadHTMLFragment($fragment);
+        $dom = $this->html5->load_html_fragment($fragment);
 
-        $string = $this->html5->saveHTML($dom);
+        $string = $this->html5->save_html($dom);
         $this->assertEquals($fragment, $string);
     }
 
@@ -254,19 +254,19 @@ class Html5Test extends TestCase
     {
         $dom = $this->html5->load(__DIR__ . '/Html5Test.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
 
         // Test resource
         $file = fopen('php://temp', 'w');
         $this->html5->save($dom, $file);
         $content = stream_get_contents($file, -1, 0);
-        $this->assertRegExp('|<p>This is a test.</p>|', $content);
+        $this->assertMatchesRegularExpression('|<p>This is a test.</p>|', $content);
 
         // Test file
         $tmpfname = tempnam(sys_get_temp_dir(), 'html5-php');
         $this->html5->save($dom, $tmpfname);
         $content = file_get_contents($tmpfname);
-        $this->assertRegExp('|<p>This is a test.</p>|', $content);
+        $this->assertMatchesRegularExpression('|<p>This is a test.</p>|', $content);
         unlink($tmpfname);
     }
 
@@ -277,26 +277,26 @@ class Html5Test extends TestCase
     {
         $dom = $this->html5->load(__DIR__ . '/Html5Test.html');
         $this->assertInstanceOf('\DOMDocument', $dom);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
 
-        $saved = $this->html5->saveHTML($dom);
+        $saved = $this->html5->save_html($dom);
 
-        $dom2 = $this->html5->loadHTML($saved);
+        $dom2 = $this->html5->load_html($saved);
         $this->assertInstanceOf('\DOMDocument', $dom2);
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
     }
 
     public function testConfig()
     {
         $html5 = $this->getInstance();
-        $options = $html5->getOptions();
+        $options = $html5->get_options();
         $this->assertEquals(false, $options['encode_entities']);
 
         $html5 = $this->getInstance([
             'foo' => 'bar',
             'encode_entities' => true,
         ]);
-        $options = $html5->getOptions();
+        $options = $html5->get_options();
         $this->assertEquals('bar', $options['foo']);
         $this->assertEquals(true, $options['encode_entities']);
 
@@ -306,7 +306,7 @@ class Html5Test extends TestCase
 
     public function testSvg()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
       <html lang="en">
         <body>
@@ -325,7 +325,7 @@ class Html5Test extends TestCase
       </html>'
         );
 
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
 
         // Test a mixed case attribute.
         $list = $dom->getElementsByTagName('svg');
@@ -342,14 +342,14 @@ class Html5Test extends TestCase
         $this->assertEquals('textPath', $textPath->tagName);
         $this->assertNotEquals('textpath', $textPath->tagName);
 
-        $html = $this->html5->saveHTML($dom);
-        $this->assertRegExp('|<svg width="150" height="100" viewBox="0 0 3 2">|', $html);
-        $this->assertRegExp('|<rect width="1" height="2" x="0" fill="#008d46" />|', $html);
+        $html = $this->html5->save_html($dom);
+        $this->assertMatchesRegularExpression('|<svg width="150" height="100" viewBox="0 0 3 2">|', $html);
+        $this->assertMatchesRegularExpression('|<rect width="1" height="2" x="0" fill="#008d46" />|', $html);
     }
 
     public function testMathMl()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<!doctype html>
       <html lang="en">
         <body>
@@ -365,7 +365,7 @@ class Html5Test extends TestCase
       </html>'
         );
 
-        $this->assertEmpty($this->html5->getErrors());
+        $this->assertEmpty($this->html5->get_errors());
         $list = $dom->getElementsByTagName('math');
         $this->assertNotEmpty($list->length);
 
@@ -379,9 +379,9 @@ class Html5Test extends TestCase
         $this->assertEquals('http://www.example.com/mathops/multiops.html#plusminus', $csymbol->getAttribute('definitionURL'));
         $this->assertFalse($csymbol->hasAttribute('definitionurl'));
 
-        $html = $this->html5->saveHTML($dom);
-        $this->assertRegExp('|<csymbol definitionURL="http://www.example.com/mathops/multiops.html#plusminus">|', $html);
-        $this->assertRegExp('|<mi>y</mi>|', $html);
+        $html = $this->html5->save_html($dom);
+        $this->assertMatchesRegularExpression('|<csymbol definitionURL="http://www.example.com/mathops/multiops.html#plusminus">|', $html);
+        $this->assertMatchesRegularExpression('|<mi>y</mi>|', $html);
     }
 
     public function testUnknownElements()
@@ -390,7 +390,7 @@ class Html5Test extends TestCase
         // spec. This is differenant than XML. Since we don't know these elements
         // they are handled as normal elements. Note, to do this is really
         // an invalid example and you should not embed prefixed xml in html5.
-        $dom = $this->html5->loadHTMLFragment(
+        $dom = $this->html5->load_html_fragment(
             '<f:rug>
       <f:name>Big rectangle thing</f:name>
       <f:width>40</f:width>
@@ -399,39 +399,39 @@ class Html5Test extends TestCase
     <sarcasm>um, yeah</sarcasm>'
         );
 
-        $this->assertEmpty($this->html5->getErrors());
-        $markup = $this->html5->saveHTML($dom);
-        $this->assertRegExp('|<f:name>Big rectangle thing</f:name>|', $markup);
-        $this->assertRegExp('|<sarcasm>um, yeah</sarcasm>|', $markup);
+        $this->assertEmpty($this->html5->get_errors());
+        $markup = $this->html5->save_html($dom);
+        $this->assertMatchesRegularExpression('|<f:name>Big rectangle thing</f:name>|', $markup);
+        $this->assertMatchesRegularExpression('|<sarcasm>um, yeah</sarcasm>|', $markup);
     }
 
     public function testElements()
     {
         // Should have content.
         $res = $this->cycle('<div>FOO</div>');
-        $this->assertRegExp('|<div>FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div>FOO</div>|', $res);
 
         // Should be empty
         $res = $this->cycle('<span></span>');
-        $this->assertRegExp('|<span></span>|', $res);
+        $this->assertMatchesRegularExpression('|<span></span>|', $res);
 
         // Should have content.
         $res = $this->cycleFragment('<div>FOO</div>');
-        $this->assertRegExp('|<div>FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div>FOO</div>|', $res);
 
         // Should be empty
         $res = $this->cycleFragment('<span></span>');
-        $this->assertRegExp('|<span></span>|', $res);
+        $this->assertMatchesRegularExpression('|<span></span>|', $res);
 
         // Elements with dashes and underscores
         $res = $this->cycleFragment('<sp-an></sp-an>');
-        $this->assertRegExp('|<sp-an></sp-an>|', $res);
+        $this->assertMatchesRegularExpression('|<sp-an></sp-an>|', $res);
         $res = $this->cycleFragment('<sp_an></sp_an>');
-        $this->assertRegExp('|<sp_an></sp_an>|', $res);
+        $this->assertMatchesRegularExpression('|<sp_an></sp_an>|', $res);
 
         // Should have no closing tag.
         $res = $this->cycle('<hr>');
-        $this->assertRegExp('|<hr></body>|', $res);
+        $this->assertMatchesRegularExpression('|<hr></body>|', $res);
     }
 
     public function testAttributes()
@@ -446,33 +446,33 @@ class Html5Test extends TestCase
         }
 
         $res = $this->cycle('<div attr="val">FOO</div>');
-        $this->assertRegExp('|<div attr="val">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div attr="val">FOO</div>|', $res);
 
         // XXX: Note that spec does NOT require attrs in the same order.
         $res = $this->cycle('<div attr="val" class="even">FOO</div>');
-        $this->assertRegExp('|<div attr="val" class="even">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div attr="val" class="even">FOO</div>|', $res);
 
         $res = $this->cycle('<div xmlns:foo="http://example.com">FOO</div>');
-        $this->assertRegExp('|<div xmlns:foo="http://example.com">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div xmlns:foo="http://example.com">FOO</div>|', $res);
 
         $res = $this->cycleFragment('<div attr="val">FOO</div>');
-        $this->assertRegExp('|<div attr="val">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div attr="val">FOO</div>|', $res);
 
         // XXX: Note that spec does NOT require attrs in the same order.
         $res = $this->cycleFragment('<div attr="val" class="even">FOO</div>');
-        $this->assertRegExp('|<div attr="val" class="even">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div attr="val" class="even">FOO</div>|', $res);
 
         $res = $this->cycleFragment('<div xmlns:foo="http://example.com">FOO</div>');
-        $this->assertRegExp('|<div xmlns:foo="http://example.com">FOO</div>|', $res);
+        $this->assertMatchesRegularExpression('|<div xmlns:foo="http://example.com">FOO</div>|', $res);
     }
 
     public function testPCData()
     {
         $res = $this->cycle('<a>This is a test.</a>');
-        $this->assertRegExp('|This is a test.|', $res);
+        $this->assertMatchesRegularExpression('|This is a test.|', $res);
 
         $res = $this->cycleFragment('<a>This is a test.</a>');
-        $this->assertRegExp('|This is a test.|', $res);
+        $this->assertMatchesRegularExpression('|This is a test.|', $res);
 
         $res = $this->cycle('This
       is
@@ -480,7 +480,7 @@ class Html5Test extends TestCase
       test.');
 
         // Check that newlines are there, but don't count spaces.
-        $this->assertRegExp('|This\n\s*is\n\s*a\n\s*test.|', $res);
+        $this->assertMatchesRegularExpression('|This\n\s*is\n\s*a\n\s*test.|', $res);
 
         $res = $this->cycleFragment('This
       is
@@ -488,70 +488,70 @@ class Html5Test extends TestCase
       test.');
 
         // Check that newlines are there, but don't count spaces.
-        $this->assertRegExp('|This\n\s*is\n\s*a\n\s*test.|', $res);
+        $this->assertMatchesRegularExpression('|This\n\s*is\n\s*a\n\s*test.|', $res);
 
         $res = $this->cycle('<a>This <em>is</em> a test.</a>');
-        $this->assertRegExp('|This <em>is</em> a test.|', $res);
+        $this->assertMatchesRegularExpression('|This <em>is</em> a test.|', $res);
 
         $res = $this->cycleFragment('<a>This <em>is</em> a test.</a>');
-        $this->assertRegExp('|This <em>is</em> a test.|', $res);
+        $this->assertMatchesRegularExpression('|This <em>is</em> a test.|', $res);
     }
 
     public function testUnescaped()
     {
         $res = $this->cycle('<script>2 < 1</script>');
-        $this->assertRegExp('|2 < 1|', $res);
+        $this->assertMatchesRegularExpression('|2 < 1|', $res);
 
         $res = $this->cycle('<style>div>div>div</style>');
-        $this->assertRegExp('|div>div>div|', $res);
+        $this->assertMatchesRegularExpression('|div>div>div|', $res);
 
         $res = $this->cycleFragment('<script>2 < 1</script>');
-        $this->assertRegExp('|2 < 1|', $res);
+        $this->assertMatchesRegularExpression('|2 < 1|', $res);
 
         $res = $this->cycleFragment('<style>div>div>div</style>');
-        $this->assertRegExp('|div>div>div|', $res);
+        $this->assertMatchesRegularExpression('|div>div>div|', $res);
     }
 
     public function testEntities()
     {
         $res = $this->cycle('<a>Apples &amp; bananas.</a>');
-        $this->assertRegExp('|Apples &amp; bananas.|', $res);
+        $this->assertMatchesRegularExpression('|Apples &amp; bananas.|', $res);
 
         $res = $this->cycleFragment('<a>Apples &amp; bananas.</a>');
-        $this->assertRegExp('|Apples &amp; bananas.|', $res);
+        $this->assertMatchesRegularExpression('|Apples &amp; bananas.|', $res);
 
         $res = $this->cycleFragment('<p>R&D</p>');
-        $this->assertRegExp('|R&amp;D|', $res);
+        $this->assertMatchesRegularExpression('|R&amp;D|', $res);
     }
 
     public function testCaseSensitiveTags()
     {
-        $dom = $this->html5->loadHTML(
+        $dom = $this->html5->load_html(
             '<html><body><Button color="red">Error</Button></body></html>',
             [
-                'xmlNamespaces' => true,
+                'xml_namespaces' => true,
             ]
         );
-        $out = $this->html5->saveHTML($dom);
-        $this->assertRegExp('|<html><body><Button color="red">Error</Button></body></html>|', $out);
+        $out = $this->html5->save_html($dom);
+        $this->assertMatchesRegularExpression('|<html><body><Button color="red">Error</Button></body></html>|', $out);
     }
 
     public function testComment()
     {
         $res = $this->cycle('a<!-- This is a test. -->b');
-        $this->assertRegExp('|<!-- This is a test. -->|', $res);
+        $this->assertMatchesRegularExpression('|<!-- This is a test. -->|', $res);
 
         $res = $this->cycleFragment('a<!-- This is a test. -->b');
-        $this->assertRegExp('|<!-- This is a test. -->|', $res);
+        $this->assertMatchesRegularExpression('|<!-- This is a test. -->|', $res);
     }
 
     public function testCDATA()
     {
         $res = $this->cycle('a<![CDATA[ This <is> a test. ]]>b');
-        $this->assertRegExp('|<!\[CDATA\[ This <is> a test\. \]\]>|', $res);
+        $this->assertMatchesRegularExpression('|<!\[CDATA\[ This <is> a test\. \]\]>|', $res);
 
         $res = $this->cycleFragment('a<![CDATA[ This <is> a test. ]]>b');
-        $this->assertRegExp('|<!\[CDATA\[ This <is> a test\. \]\]>|', $res);
+        $this->assertMatchesRegularExpression('|<!\[CDATA\[ This <is> a test\. \]\]>|', $res);
     }
 
     public function testAnchorTargetQueryParam()

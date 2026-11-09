@@ -8,10 +8,10 @@ declare (strict_types=1);
 namespace Masterminds\HTML5\Serializer;
 
 /**
- * To create a new rule set for writing output the RulesInterface needs to be implemented.
+ * To create a new rule set for writing output the Rules_Interface needs to be implemented.
  * The resulting class can be specified in the options with the key of rules.
  *
- * For an example implementation see Serializer\OutputRules.
+ * For an example implementation see Serializer\Output_Rules.
  */
 interface Rules_Interface
 {
@@ -31,7 +31,7 @@ interface Rules_Interface
      *
      * @param Traverser $traverser The traverser used in the rules.
      *
-     * @return RulesInterface $this for the current object.
+     * @return Rules_Interface $this for the current object.
      */
     public function set_traverser(Traverser $traverser);
     /**
@@ -82,7 +82,7 @@ interface Rules_Interface
     /**
      * Write a processor instruction.
      *
-     * To learn about processor instructions see InstructionProcessor
+     * To learn about processor instructions see Instruction_Processor
      *
      * Instead of returning the result write it to the output stream ($output)
      * that was passed into the constructor.

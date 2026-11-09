@@ -23,7 +23,7 @@ use Masterminds\HTML5\Instruction_Processor;
  * re-written to accomodate this. See, for example, the Go language HTML5
  * parser.
  */
-class Dom_Tree_Builder implements Event_Handler
+class DOM_Tree_Builder implements Event_Handler
 {
     /**
      * Defined in http://www.w3.org/TR/html51/infrastructure.html#html-namespace-0.
@@ -115,13 +115,13 @@ class Dom_Tree_Builder implements Event_Handler
         if (isset($options[self::OPT_TARGET_DOC])) {
             $this->doc = $options[self::OPT_TARGET_DOC];
         } else {
-            $impl = new \Dom_Implementation();
+            $impl = new \DOMImplementation();
             // XXX:
             // Create the doctype. For now, we are always creating HTML5
             // documents, and attempting to up-convert any older DTDs to HTML5.
-            $dt = $impl->create_document_type('html');
+            $dt = $impl->createDocumentType('html');
             // $this->doc = \DOMImplementation::createDocument(NULL, 'html', $dt);
-            $this->doc = $impl->create_document(null, '', $dt);
+            $this->doc = $impl->createDocument(null, '', $dt);
             $this->doc->encoding = !empty($options['encoding']) ? $options['encoding'] : 'UTF-8';
         }
         $this->errors = [];
@@ -132,14 +132,12 @@ class Dom_Tree_Builder implements Event_Handler
         $implicit_ns = [];
         if (isset($this->options[self::OPT_IMPLICIT_NS])) {
             $implicit_ns = $this->options[self::OPT_IMPLICIT_NS];
-        } elseif (isset($this->options['implicitNamespaces'])) {
-            $implicit_ns = $this->options['implicitNamespaces'];
         }
-        // Fill $nsStack with the defalut HTML5 namespaces, plus the "implicitNamespaces" array taken form $options
+        // Fill $nsStack with the defalut HTML5 namespaces, plus the "implicit_namespaces" array taken form $options
         array_unshift($this->ns_stack, $implicit_ns + ['' => self::NAMESPACE_HTML] + $this->implicit_namespaces);
         if ($is_fragment) {
             $this->insert_mode = static::IM_IN_BODY;
-            $this->frag = $this->doc->create_document_fragment();
+            $this->frag = $this->doc->createDocumentFragment();
             $this->current = $this->frag;
         }
     }
@@ -202,7 +200,7 @@ class Dom_Tree_Builder implements Event_Handler
     {
         $lname = $this->normalize_tag_name($name);
         // Make sure we have an html element.
-        if (!$this->doc->document_element && 'html' !== $name && !$this->frag) {
+        if (!$this->doc->documentElement && 'html' !== $name && !$this->frag) {
             $this->start_tag('html');
         }
         // Set quirks mode if we're at IM_INITIAL with no doctype.
@@ -258,8 +256,8 @@ class Dom_Tree_Builder implements Event_Handler
             ++$pushes;
         }
         $needs_workaround = false;
-        if (isset($this->options['xmlNamespaces']) && $this->options['xmlNamespaces']) {
-            // when xmlNamespaces is true a and we found a 'xmlns' or 'xmlns:*' attribute, we should add a new item to the $nsStack
+        if (isset($this->options['xml_namespaces']) && $this->options['xml_namespaces']) {
+            // when xml_namespaces is true a and we found a 'xmlns' or 'xmlns:*' attribute, we should add a new item to the $nsStack
             foreach ($attributes as $a_name => $a_val) {
                 if ('xmlns' === $a_name) {
                     $needs_workaround = $a_val;
@@ -277,9 +275,9 @@ class Dom_Tree_Builder implements Event_Handler
         }
         // some elements as table related tags might have optional end tags that force us to auto close multiple tags
         // https://www.w3.org/TR/html401/struct/tables.html
-        if ($this->current instanceof \Dom_Element && isset(Elements::$optional_end_elements_parents_to_close[$lname])) {
+        if ($this->current instanceof \DOMElement && isset(Elements::$optional_end_elements_parents_to_close[$lname])) {
             foreach (Elements::$optional_end_elements_parents_to_close[$lname] as $parent_el_name) {
-                if ($this->current instanceof \Dom_Element && $this->current->tag_name === $parent_el_name) {
+                if ($this->current instanceof \DOMElement && $this->current->tagName === $parent_el_name) {
                     $this->autoclose($parent_el_name);
                 }
             }
@@ -290,17 +288,17 @@ class Dom_Tree_Builder implements Event_Handler
                 $safe_ns = htmlspecialchars((string) $needs_workaround, ENT_XML1 | ENT_QUOTES, 'UTF-8');
                 $safe_ns_prefix = strlen($prefix) && isset($this->ns_stack[0][$prefix]) ? htmlspecialchars((string) $this->ns_stack[0][$prefix], ENT_XML1 | ENT_QUOTES, 'UTF-8') : null;
                 $xml = "<{$lname} xmlns=\"{$safe_ns}\" " . ($safe_ns_prefix !== null ? "xmlns:{$prefix}=\"" . $safe_ns_prefix . '"' : '') . '/>';
-                $frag = new \Dom_Document('1.0', 'UTF-8');
-                $frag->load_xml($xml);
-                $ele = $this->doc->import_node($frag->document_element, true);
+                $frag = new \DOMDocument('1.0', 'UTF-8');
+                $frag->loadXML($xml);
+                $ele = $this->doc->importNode($frag->documentElement, true);
             } else if (!isset($this->ns_stack[0][$prefix]) || '' === $prefix && isset($this->options[self::OPT_DISABLE_HTML_NS]) && $this->options[self::OPT_DISABLE_HTML_NS]) {
-                $ele = $this->doc->create_element($lname);
+                $ele = $this->doc->createElement($lname);
             } else {
-                $ele = $this->doc->create_element_ns($this->ns_stack[0][$prefix], $lname);
+                $ele = $this->doc->createElementNS($this->ns_stack[0][$prefix], $lname);
             }
-        } catch (\Dom_Exception $e) {
+        } catch (\DOMException $e) {
             $this->parse_error("Illegal tag name: <{$lname}>. Replaced with <invalid>.");
-            $ele = $this->doc->create_element('invalid');
+            $ele = $this->doc->createElement('invalid');
         }
         if (Elements::is_a($lname, Elements::BLOCK_ONLY_INLINE)) {
             $this->only_inline = $lname;
@@ -327,19 +325,19 @@ class Dom_Tree_Builder implements Event_Handler
             try {
                 $prefix = ($pos = strpos($a_name, ':')) ? substr($a_name, 0, $pos) : false;
                 if ('xmlns' === $prefix) {
-                    $ele->set_attribute_ns(self::NAMESPACE_XMLNS, $a_name, $a_val);
+                    $ele->setAttributeNS(self::NAMESPACE_XMLNS, $a_name, $a_val);
                 } elseif (false !== $prefix && isset($this->ns_stack[0][$prefix])) {
-                    $ele->set_attribute_ns($this->ns_stack[0][$prefix], $a_name, $a_val);
+                    $ele->setAttributeNS($this->ns_stack[0][$prefix], $a_name, $a_val);
                 } else {
-                    $ele->set_attribute($a_name, $a_val);
+                    $ele->setAttribute($a_name, $a_val);
                 }
-            } catch (\Dom_Exception $e) {
+            } catch (\DOMException $e) {
                 $this->parse_error("Illegal attribute name for tag {$name}. Ignoring: {$a_name}");
                 continue;
             }
             // This is necessary on a non-DTD schema, like HTML5.
             if ('id' === $a_name) {
-                $ele->set_id_attribute('id', true);
+                $ele->setIdAttribute('id', true);
             }
         }
         if ($this->frag !== $this->current && $this->rules->has_rules($name)) {
@@ -347,14 +345,14 @@ class Dom_Tree_Builder implements Event_Handler
             $this->current = $this->rules->evaluate($ele, $this->current);
         } else {
             // Otherwise, it's a standard element.
-            $this->current->append_child($ele);
+            $this->current->appendChild($ele);
             if (!Elements::is_a($name, Elements::VOID_TAG)) {
                 $this->current = $ele;
             }
             // Self-closing tags should only be respected on foreign elements
             // (and are implied on void elements)
             // See: https://www.w3.org/TR/html5/syntax.html#start-tags
-            if (Elements::is_html5element($name)) {
+            if (Elements::is_html5_element($name)) {
                 $self_closing = false;
             }
         }
@@ -436,8 +434,8 @@ class Dom_Tree_Builder implements Event_Handler
     public function comment($cdata)
     {
         // TODO: Need to handle case where comment appears outside of the HTML tag.
-        $node = $this->doc->create_comment($cdata);
-        $this->current->append_child($node);
+        $node = $this->doc->createComment($cdata);
+        $this->current->appendChild($node);
     }
     public function text($data)
     {
@@ -455,8 +453,8 @@ class Dom_Tree_Builder implements Event_Handler
             return;
         }
         // fprintf(STDOUT, "Appending text %s.", $data);
-        $node = $this->doc->create_text_node($data);
-        $this->current->append_child($node);
+        $node = $this->doc->createTextNode($data);
+        $this->current->appendChild($node);
     }
     public function eof()
     {
@@ -472,8 +470,8 @@ class Dom_Tree_Builder implements Event_Handler
     }
     public function cdata($data)
     {
-        $node = $this->doc->create_cdata_section($data);
-        $this->current->append_child($node);
+        $node = $this->doc->createCDATASection($data);
+        $this->current->appendChild($node);
     }
     public function processing_instruction($name, $data = null)
     {
@@ -490,8 +488,8 @@ class Dom_Tree_Builder implements Event_Handler
             return;
         }
         // Otherwise, this is just a dumb PI element.
-        $node = $this->doc->create_processing_instruction($name, $data);
-        $this->current->append_child($node);
+        $node = $this->doc->createProcessingInstruction($name, $data);
+        $this->current->appendChild($node);
     }
     // ==========================================================================
     // UTILITIES
@@ -526,14 +524,14 @@ class Dom_Tree_Builder implements Event_Handler
     {
         $working = $this->current;
         do {
-            if (XML_ELEMENT_NODE !== $working->node_type) {
+            if (XML_ELEMENT_NODE !== $working->nodeType) {
                 return false;
             }
-            if ($working->tag_name === $tag_name) {
-                $this->current = $working->parent_node;
+            if ($working->tagName === $tag_name) {
+                $this->current = $working->parentNode;
                 return true;
             }
-        } while ($working = $working->parent_node);
+        } while ($working = $working->parentNode);
         return false;
     }
     /**
@@ -549,11 +547,11 @@ class Dom_Tree_Builder implements Event_Handler
     protected function is_ancestor($tag_name)
     {
         $candidate = $this->current;
-        while (XML_ELEMENT_NODE === $candidate->node_type) {
-            if ($candidate->tag_name === $tag_name) {
+        while (XML_ELEMENT_NODE === $candidate->nodeType) {
+            if ($candidate->tagName === $tag_name) {
                 return true;
             }
-            $candidate = $candidate->parent_node;
+            $candidate = $candidate->parentNode;
         }
         return false;
     }
@@ -566,6 +564,6 @@ class Dom_Tree_Builder implements Event_Handler
      */
     protected function is_parent($tag_name)
     {
-        return $this->current->tag_name === $tag_name;
+        return $this->current->tagName === $tag_name;
     }
 }

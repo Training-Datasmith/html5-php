@@ -8,14 +8,14 @@ declare(strict_types=1);
 
 namespace Masterminds\HTML5\Tests\Parser;
 
-use Masterminds\HTML5\Parser\DOMTreeBuilder;
+use Masterminds\HTML5\Parser\DOM_Tree_Builder;
 use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 
 /**
  * These tests are functional, not necessarily unit tests.
  */
-class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
+class DOM_Tree_Builder_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     protected $errors = [];
 
@@ -24,12 +24,12 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
      */
     protected function parse($string, array $options = [])
     {
-        $treeBuilder = new DOMTreeBuilder(false, $options);
+        $treeBuilder = new DOM_Tree_Builder(false, $options);
         $scanner = new Scanner($string);
         $parser = new Tokenizer($scanner, $treeBuilder);
 
         $parser->parse();
-        $this->errors = $treeBuilder->getErrors();
+        $this->errors = $treeBuilder->get_errors();
 
         return $treeBuilder->document();
     }
@@ -39,12 +39,12 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
      */
     protected function parseFragment($string)
     {
-        $treeBuilder = new DOMTreeBuilder(true);
+        $treeBuilder = new DOM_Tree_Builder(true);
         $scanner = new Scanner($string);
         $parser = new Tokenizer($scanner, $treeBuilder);
 
         $parser->parse();
-        $this->errors = $treeBuilder->getErrors();
+        $this->errors = $treeBuilder->get_errors();
 
         return $treeBuilder->fragment();
     }
@@ -189,7 +189,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
     public function testDocumentFakeAttrAbsence()
     {
         $html = '<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><body>foo</body></html>';
-        $doc = $this->parse($html, ['xmlNamespaces' => true]);
+        $doc = $this->parse($html, ['xml_namespaces' => true]);
 
         $xp = new \DOMXPath($doc);
         $this->assertEquals(0, $xp->query('//@html5-php-fake-id-attribute')->length);
@@ -245,7 +245,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
     public function testCustomImplicitNamespaces()
     {
         $dom = $this->parse('<!DOCTYPE html><html><body><a t:href="bar">foo</a></body></html>', [
-            'implicitNamespaces' => [
+            'implicit_namespaces' => [
                 't' => 'http://www.example.com',
             ],
         ]);
@@ -254,7 +254,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
         $this->assertEquals('http://www.example.com', $attr->namespaceURI);
 
         $dom = $this->parse('<!DOCTYPE html><html><body><t:a>foo</t:a></body></html>', [
-            'implicitNamespaces' => [
+            'implicit_namespaces' => [
                 't' => 'http://www.example.com',
             ],
         ]);
@@ -272,7 +272,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
             <div>foo</div>
           </html>',
             [
-                'xmlNamespaces' => true,
+                'xml_namespaces' => true,
             ]
         );
         $a = $dom->getElementsByTagName('a')->item(0);
@@ -299,7 +299,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
             </body>
           </html>',
             [
-                'xmlNamespaces' => true,
+                'xml_namespaces' => true,
             ]
         );
 
@@ -473,7 +473,7 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
         $this->assertEquals('head', $headElement->tagName);
     }
 
-    public function testParseErrors()
+    public function test_parse_errors()
     {
         $html = '<!DOCTYPE html><html><math><![CDATA[test';
         $doc = $this->parse($html);
@@ -606,13 +606,13 @@ class DOMTreeBuilderTest extends \Masterminds\HTML5\Tests\TestCase
         $this->assertEquals('Test', $span->textContent);
     }
 
-    public function testInstructionProcessor()
+    public function test_instruction_processor()
     {
         $string = '<!DOCTYPE html><html><?foo bar ?></html>';
 
-        $treeBuilder = new DOMTreeBuilder();
-        $is = new InstructionProcessorMock();
-        $treeBuilder->setInstructionProcessor($is);
+        $treeBuilder = new DOM_Tree_Builder();
+        $is = new Instruction_Processor_Mock();
+        $treeBuilder->set_instruction_processor($is);
 
         $scanner = new Scanner($string);
         $parser = new Tokenizer($scanner, $treeBuilder);

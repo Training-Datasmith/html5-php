@@ -33,7 +33,7 @@ class Tree_Building_Rules
      */
     public function evaluate($new, $current)
     {
-        switch ($new->tag_name) {
+        switch ($new->tagName) {
             case 'li':
                 return $this->handle_li($new, $current);
             case 'dt':
@@ -74,10 +74,10 @@ class Tree_Building_Rules
     }
     protected function close_if_current_matches($ele, $current, $match)
     {
-        if (in_array($current->tag_name, $match, true)) {
-            $current->parent_node->append_child($ele);
+        if (in_array($current->tagName, $match, true)) {
+            $current->parentNode->appendChild($ele);
         } else {
-            $current->append_child($ele);
+            $current->appendChild($ele);
         }
         return $ele;
     }

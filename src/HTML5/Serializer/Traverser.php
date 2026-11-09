@@ -49,15 +49,15 @@ class Traverser
      */
     public function walk()
     {
-        if ($this->dom instanceof \Dom_Document) {
+        if ($this->dom instanceof \DOMDocument) {
             $this->rules->document($this->dom);
-        } elseif ($this->dom instanceof \Dom_Document_Fragment) {
+        } elseif ($this->dom instanceof \DOMDocumentFragment) {
             // Document fragments are a special case. Only the children need to
             // be serialized.
-            if ($this->dom->has_child_nodes()) {
-                $this->children($this->dom->child_nodes);
+            if ($this->dom->hasChildNodes()) {
+                $this->children($this->dom->childNodes);
             }
-        } elseif ($this->dom instanceof \Dom_Node_List) {
+        } elseif ($this->dom instanceof \DOMNodeList) {
             // If this is a NodeList of DOMDocuments this will not work.
             $this->children($this->dom);
         } else {
@@ -73,7 +73,7 @@ class Traverser
     public function node($node)
     {
         // A listing of types is at http://php.net/manual/en/dom.constants.php
-        switch ($node->node_type) {
+        switch ($node->nodeType) {
             case XML_ELEMENT_NODE:
                 $this->rules->element($node);
                 break;
@@ -115,7 +115,7 @@ class Traverser
      */
     public function is_local_element($ele)
     {
-        $uri = $ele->namespace_uri;
+        $uri = $ele->namespaceURI;
         if (empty($uri)) {
             return false;
         }

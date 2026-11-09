@@ -6,7 +6,7 @@ A PHP HTML5 parser and serializer. Parses HTML5 documents into a standard PHP `D
 ## Directory Structure
 ```
 src/
-  HTML5.php                       # Public facade — parse() and saveHTML()
+  HTML5.php                       # Public facade — parse() and save_html()
   HTML5/
     Elements.php                  # HTML5 element metadata (void, raw-text, etc.)
     Entities.php                  # HTML5 named character reference table

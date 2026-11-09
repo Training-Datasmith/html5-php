@@ -7,7 +7,7 @@ namespace Masterminds\HTML5\Tests;
 use Masterminds\HTML5;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
-class TestCase extends BaseTestCase
+class Test_Case extends BaseTestCase
 {
     public const DOC_OPEN = '<!DOCTYPE html><html><head><title>test</title></head><body>';
 

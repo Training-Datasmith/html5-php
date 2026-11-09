@@ -8,7 +8,7 @@ use Masterminds\HTML5\Parser\Scanner;
 use Masterminds\HTML5\Parser\Tokenizer;
 use Masterminds\HTML5\Parser\UTF8Utils;
 
-class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
+class Tokenizer_Test extends \Masterminds\HTML5\Tests\Test_Case
 {
     // ================================================================
     // Additional assertions.
@@ -94,7 +94,7 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
         $this->assertEquals($spaces, $e1['data'][0]);
     }
 
-    public function testCharacterReference()
+    public function test_character_reference()
     {
         $good = [
             '&amp;' => '&',
@@ -277,49 +277,49 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
             ],
             '<!DOCTYPE html PUBLIC "foo bar">' => [
                 'html',
-                EventStack::DOCTYPE_PUBLIC,
+                Event_Stack::DOCTYPE_PUBLIC,
                 'foo bar',
                 false,
             ],
             "<!DOCTYPE html PUBLIC 'foo bar'>" => [
                 'html',
-                EventStack::DOCTYPE_PUBLIC,
+                Event_Stack::DOCTYPE_PUBLIC,
                 'foo bar',
                 false,
             ],
             '<!DOCTYPE      html      PUBLIC     "foo bar"    >' => [
                 'html',
-                EventStack::DOCTYPE_PUBLIC,
+                Event_Stack::DOCTYPE_PUBLIC,
                 'foo bar',
                 false,
             ],
             "<!DOCTYPE html \nPUBLIC\n'foo bar'>" => [
                 'html',
-                EventStack::DOCTYPE_PUBLIC,
+                Event_Stack::DOCTYPE_PUBLIC,
                 'foo bar',
                 false,
             ],
             '<!DOCTYPE html SYSTEM "foo bar">' => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo bar',
                 false,
             ],
             "<!DOCTYPE html SYSTEM 'foo bar'>" => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo bar',
                 false,
             ],
             '<!DOCTYPE      html      SYSTEM "foo/bar"    >' => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo/bar',
                 false,
             ],
             "<!DOCTYPE html \nSYSTEM\n'foo bar'>" => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo bar',
                 false,
             ],
@@ -329,43 +329,43 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
         $bad = [
             '<!DOCTYPE>' => [
                 null,
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE    >' => [
                 null,
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE  foo' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE foo PUB' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE foo PUB>' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE  foo PUB "Looks good">' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE  foo SYSTME "Looks good"' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
@@ -373,38 +373,38 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
             // Can't tell whether these are ids or ID types, since the context is chopped.
             '<!DOCTYPE foo PUBLIC' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE  foo PUBLIC>' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE foo SYSTEM' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
             '<!DOCTYPE  foo SYSTEM>' => [
                 'foo',
-                EventStack::DOCTYPE_NONE,
+                Event_Stack::DOCTYPE_NONE,
                 null,
                 true,
             ],
 
             '<!DOCTYPE html SYSTEM "foo bar"' => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo bar',
                 true,
             ],
             '<!DOCTYPE html SYSTEM "foo bar" more stuff>' => [
                 'html',
-                EventStack::DOCTYPE_SYSTEM,
+                Event_Stack::DOCTYPE_SYSTEM,
                 'foo bar',
                 true,
             ],
@@ -918,7 +918,7 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
     public function testRcdata()
     {
         list($tok, $events) = $this->createTokenizer('<title>&#x27;<!-- not a comment --></TITLE>');
-        $tok->setTextMode(\Masterminds\HTML5\Elements::TEXT_RCDATA, 'title');
+        $tok->set_text_mode(\Masterminds\HTML5\Elements::TEXT_RCDATA, 'title');
         $tok->parse();
         $this->assertEventEquals('text', "'<!-- not a comment -->", $events->get(1));
     }
@@ -974,7 +974,7 @@ class TokenizerTest extends \Masterminds\HTML5\Tests\TestCase
     // ================================================================
     protected function createTokenizer($string, $debug = false)
     {
-        $eventHandler = new EventStack();
+        $eventHandler = new Event_Stack();
         $scanner = new Scanner($string);
 
         $scanner->debug = $debug;

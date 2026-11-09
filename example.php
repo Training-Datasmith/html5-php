@@ -27,7 +27,7 @@ $html = <<< 'HERE'
 HERE;
 
 $html5 = new HTML5();
-$dom = $html5->loadHTML($html);
+$dom = $html5->load_html($html);
 
 echo "Converting to HTML 5\n";
 

@@ -4,7 +4,7 @@ declare (strict_types=1);
 namespace Masterminds\HTML5\Parser;
 
 /**
- * The FileInputStream loads a file to be parsed.
+ * The File_Input_Stream loads a file to be parsed.
  *
  * So right now we read files into strings and then process the
  * string. We chose to do this largely for the sake of expediency of
