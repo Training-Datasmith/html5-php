@@ -14,7 +14,7 @@ $installedJson = $root . '/vendor/composer/installed.json';
 $expected = [
     'nikic/php-parser' => [
         'alias' => '5.7.0',
-        'reference' => '50f0d9c9d0e3cff1163c959c50aaaaa4a7115f08',
+        'reference' => 'f7e11c33f9fbd4aab93d4b718d21e78289913587',
     ],
 ];
 
